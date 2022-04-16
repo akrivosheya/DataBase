@@ -24,23 +24,24 @@ public class WindowOpener{
 		Text text = new Text(0, INFORMATION_HEIGHT / 2, information);
 		text.setFont(Font.font("Tahoma", FontWeight.NORMAL, TEXT_SIZE));
 		root.getChildren().add(text);
-		showWindow(root, INFORMATION_WIDTH, INFORMATION_HEIGHT, "Information");
+		Stage window = new Stage();
+		showWindow(window, root, INFORMATION_WIDTH, INFORMATION_HEIGHT, "Information");
 	}
 	
-	public void openCreatingWindow(List<String> columns, List<String> fieldsText, TableView<TableData> table, QueryMaster queryMaster){
+	public void openCreatingWindow(List<String> columns, List<String> fieldsText, TableView<TableData> table, QueryMaster queryMaster, ConnecterDataBase connecter){
 		if(columns == null){
 			throw new NullPointerException("Null arguments for sendSelectingResult");
 		}
 		Group root = new Group();
 		List<Text> texts = new ArrayList<Text>();
 		List<TextField> fields = new ArrayList<TextField>();
-		createTextFields(columns, texts, fields);
+		configurator.createTextsWithFields(columns, texts, fields);
 		if(fieldsText != null){
-			setTextToFields(fieldsText, fields);
+			configurator.setTextToFields(fieldsText, fields);
 		}
 		Button button = new Button("OK");
 		button.setOnAction(e->{
-			String query = queryMaster.getInsertingQuery(getFullStringsFromControls(texts, fields));
+			String query = queryMaster.getInsertingQuery(configurator.getMapFormTextsAndFields(texts, fields));
 			if(query == null){
 				sendInformation("Can't get query for that operation");
 				return;
@@ -48,27 +49,28 @@ public class WindowOpener{
 			List<String> queries = List.of(query);
 			String result = connecter.sendQueries(queries);
 			sendInformation(result);
-			if(!configureTable(table)){
+			if(!configurator.configureTable(table, queryMaster, connecter)){
 				sendInformation("Have some problems with creating table");
 			}
 		});
-		configureScene(root, null, texts, fields, null, List.of(button), false);
+		configurator.configureScene(root, null, texts, fields, null, List.of(button), false);
 		Stage window = new Stage();
 		showWindow(window, root, DEFAULT_WIDTH, DEFAULT_HEIGHT, "Creating");
 	}
 	
-	public void openUpdatingWindow(List<String> columns, List<String> fieldsText, TableView<TableData> table, QueryMaster queryMaster){
+	public void openUpdatingWindow(List<String> columns, List<String> fieldsText, TableView<TableData> table, QueryMaster queryMaster, ConnecterDataBase connecter){
 		if(columns == null || fieldsText == null){
 			throw new NullPointerException("Null arguments for sendSelectingResult");
 		}
 		Group root = new Group();
 		List<Text> texts = new ArrayList<Text>();
 		List<TextField> fields = new ArrayList<TextField>();
-		createTextFields(columns, texts, fields);
-		setTextToFields(fieldsText, fields);
+		configurator.createTextsWithFields(columns, texts, fields);
+		configurator.setTextToFields(fieldsText, fields);
 		Button button = new Button("OK");
+		Stage window = new Stage();
 		button.setOnAction(e->{
-			String query = queryMaster.getUpdatingQuery(getFullStringsFromControls(texts, fields), getFullStringsFromStrings(columns, fieldsText));
+			String query = queryMaster.getUpdatingQuery(configurator.getMapFormTextsAndFields(texts, fields), configurator.getMapFromStrings(columns, fieldsText));
 			if(query == null){
 				sendInformation("Can't get query for that operation");
 				return;
@@ -76,13 +78,12 @@ public class WindowOpener{
 			List<String> queries = List.of(query);
 			String result = connecter.sendQueries(queries);
 			sendInformation(result);
-			if(!configureTable(table)){
+			if(!configurator.configureTable(table, queryMaster, connecter)){
 				sendInformation("Have some problems with creating table");
 			}
 			window.close();
 		});
-		configureScene(root, null, texts, fields, null, List.of(button), false);
-		Stage window = new Stage();
+		configurator.configureScene(root, null, texts, fields, null, List.of(button), false);
         showWindow(window, root, DEFAULT_WIDTH, DEFAULT_HEIGHT, "Updating");
 	}
 	
@@ -113,6 +114,6 @@ public class WindowOpener{
 	private double TITLE_HEIGHT = 35;
 	private double OUTLINE_WIDTH = 15;
 	private double TEXT_SIZE = 15;
-	private WindowOpener instance;
-	private ElementsConfigurator configuratot = ElementsConfigurator
+	private static WindowOpener instance;
+	private ElementsConfigurator configurator = ElementsConfigurator.getInstance();
 }
