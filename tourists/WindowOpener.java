@@ -7,8 +7,6 @@ import javafx.scene.text.*;
 import javafx.scene.control.*;
 import java.util.*;
 
-import tourists.*;
-
 public class WindowOpener{
 	private WindowOpener(){}
 	
@@ -28,7 +26,18 @@ public class WindowOpener{
 		showWindow(window, root, INFORMATION_WIDTH, INFORMATION_HEIGHT, "Information");
 	}
 	
-	public void openCreatingWindow(List<String> columns, List<String> fieldsText, TableView<TableData> table, QueryMaster queryMaster, ConnecterDataBase connecter){
+	public void sendSelectingResult(List<String> result, TableView<TableData> table){
+		if(result == null || result.size() == 0){
+			throw new NullPointerException("Null arguments for sendSelectingResult");
+		}
+		Stage window = new Stage();
+		Group root = new Group();
+		configurator.configureTable(result, table);
+		root.getChildren().add(table);
+		showWindow(window, root, TABLE_WIDTH, TABLE_HEIGHT, "Result");
+	}
+	
+	public void openCreatingWindow(List<String> columns, List<String> fields, TableView<TableData> table, QueryMaster queryMaster, ConnecterDataBase connecter){
 		if(columns == null){
 			throw new NullPointerException("Null arguments for sendSelectingResult");
 		}
@@ -36,8 +45,8 @@ public class WindowOpener{
 		List<Text> texts = new ArrayList<Text>();
 		List<TextField> fields = new ArrayList<TextField>();
 		configurator.createTextsWithFields(columns, texts, fields);
-		if(fieldsText != null){
-			configurator.setTextToFields(fieldsText, fields);
+		if(fields != null){
+			configurator.setTextToFields(fields, fields);
 		}
 		Button button = new Button("OK");
 		button.setOnAction(e->{
@@ -58,19 +67,19 @@ public class WindowOpener{
 		showWindow(window, root, DEFAULT_WIDTH, DEFAULT_HEIGHT, "Creating");
 	}
 	
-	public void openUpdatingWindow(List<String> columns, List<String> fieldsText, TableView<TableData> table, QueryMaster queryMaster, ConnecterDataBase connecter){
-		if(columns == null || fieldsText == null){
+	public void openUpdatingWindow(List<String> columns, List<String> fields, TableView<TableData> table, QueryMaster queryMaster, ConnecterDataBase connecter){
+		if(columns == null || fields == null){
 			throw new NullPointerException("Null arguments for sendSelectingResult");
 		}
 		Group root = new Group();
 		List<Text> texts = new ArrayList<Text>();
 		List<TextField> fields = new ArrayList<TextField>();
 		configurator.createTextsWithFields(columns, texts, fields);
-		configurator.setTextToFields(fieldsText, fields);
+		configurator.setTextToFields(fields, fields);
 		Button button = new Button("OK");
 		Stage window = new Stage();
 		button.setOnAction(e->{
-			String query = queryMaster.getUpdatingQuery(configurator.getMapFormTextsAndFields(texts, fields), configurator.getMapFromStrings(columns, fieldsText));
+			String query = queryMaster.getUpdatingQuery(configurator.getMapFormTextsAndFields(texts, fields), configurator.getMapFromStrings(columns, fields));
 			if(query == null){
 				sendInformation("Can't get query for that operation");
 				return;
@@ -111,6 +120,8 @@ public class WindowOpener{
 	private double INFORMATION_WIDTH = 300;
 	private double DEFAULT_HEIGHT = 600;
 	private double DEFAULT_WIDTH = 700;
+	private double TABLE_HEIGHT = 400;
+	private double TABLE_WIDTH = 400;
 	private double TITLE_HEIGHT = 35;
 	private double OUTLINE_WIDTH = 15;
 	private double TEXT_SIZE = 15;

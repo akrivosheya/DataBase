@@ -18,6 +18,38 @@ public class ElementsConfigurator{
 		return instance;
 	}
 	
+	public void createTexts(List<String> strings, List<Text> texts){
+		if(strings == null || texts == null){
+			System.err.println("Null arguments for createTexts");
+			return;
+		}
+		Iterator<String> iterator = strings.iterator();
+		while(iterator.hasNext()){
+			String text = iterator.next();
+			if(text == null){
+				System.err.println("createTexts got one null string");
+				continue;
+			}
+			texts.add(new Text(text));
+		}
+	}
+	
+	public void createFlags(List<String> strings, List<CheckBox> flags){
+		if(strings == null || flags == null){
+			System.err.println("Null arguments for createFlags");
+			return;
+		}
+		Iterator<String> iterator = strings.iterator();
+		while(iterator.hasNext()){
+			String text = iterator.next();
+			if(text == null){
+				System.err.println("createFlags got one null string");
+				continue;
+			}
+			flags.add(new CheckBox(text));
+		}
+	}
+	
 	public void setTextToFields(List<String> texts, List<TextField> fields){
 		if(texts == null || fields == null){
 			System.err.println("Null arguments for WindowOpener.setTextToFields");
@@ -51,46 +83,6 @@ public class ElementsConfigurator{
 		}
 	}
 	
-	public Map<String, String> getMapFormTextsAndFields(List<Text> texts, List<TextField> fields){
-		if(fields == null || texts == null){
-			return null;
-		}
-		Iterator<TextField> iteratorField = fields.iterator();
-		Iterator<Text> iteratorText = texts.iterator();
-		Map<String, String> strings = new HashMap<String, String>();
-		while(iteratorField.hasNext() && iteratorText.hasNext()){
-			TextField field = iteratorField.next();
-			Text text = iteratorText.next();
-			if(field == null || text == null){
-				return null;
-			}
-			if(field.getText().length() > 0){
-				strings.put(text.getText(), field.getText());
-			}
-		}
-		return strings;
-	}
-	
-	public Map<String, String> getMapFromStrings(List<String> texts, List<String> fields){
-		if(fields == null || texts == null){
-			return null;
-		}
-		Iterator<String> iteratorField = fields.iterator();
-		Iterator<String> iteratorText = texts.iterator();
-		Map<String, String> strings = new HashMap<String, String>();
-		while(iteratorField.hasNext() && iteratorText.hasNext()){
-			String field = iteratorField.next();
-			String text = iteratorText.next();
-			if(field == null || text == null){
-				return null;
-			}
-			if(field.length() > 0){
-				strings.put(text, field);
-			}
-		}
-		return strings;
-	}
-	
 	public boolean configureTable(TableView<TableData> table, QueryMaster queryMaster, ConnecterDataBase connecter){
 		String query = queryMaster.getSelectingQuery(null, null);
 		if(query == null){
@@ -107,11 +99,16 @@ public class ElementsConfigurator{
 			System.err.println("Can't get result of select command");
 			return false;
 		}
-		List<String> values = connecter.executeQuery(query, arrayStringsToList(columns.split(DELIM)));
+		List<String> values = connecter.executeQuery(query, StringMaster.arrayStringsToList(columns.split(DELIM)));
 		if(values == null || !result.addAll(values)){
 			System.err.println("Can't get result of select command");
 			return false;
 		}
+		configureTable(result, table);
+		return true;
+	}
+	
+	public void configureTable(List<String> result, TableView<TableData> table){
 		String[] columnNames = result.get(0).split(DELIM);
 		result.remove(0);
 		Iterator<String> iterator = result.iterator();
@@ -130,15 +127,14 @@ public class ElementsConfigurator{
 		}
 		ObservableList<TableData> obseravableRows = FXCollections.observableArrayList(rows);
 		table.setItems(obseravableRows);
-		List<TableColumn<TableData, String>> tableColumns = new ArrayList<TableColumn<TableData, String>>();
+		List<TableColumn<TableData, String>> columns = new ArrayList<TableColumn<TableData, String>>();
 		for(int i = 0; i < columnNames.length; ++i){
 			TableColumn<TableData, String> columnName = new TableColumn<>(columnNames[i]);
 			final int j = i;
 			columnName.setCellValueFactory(p -> p.getValue().property(j));
-			tableColumns.add(columnName);
+			columns.add(columnName);
 		}
-		table.getColumns().setAll(tableColumns);
-		return true;
+		table.getColumns().setAll(columns);
 	}
 	
 	public void configureScene(Group group, List<Text> texts, List<Text> textFields, List<TextField> fields, 
@@ -243,17 +239,6 @@ public class ElementsConfigurator{
 				++currentElement;
 			}
 		}
-	}
-	
-	private List<String> arrayStringsToList(String[] array){
-		if(array == null){
-			return null;
-		}
-		List<String> list = new ArrayList<String>();
-		for(String string : array){
-			list.add(string);
-		}
-		return list;
 	}
 	
 	private double SCENE_HEIGHT = 600;

@@ -23,20 +23,13 @@ public class View extends Application {
 			root.getChildren().add(m);
 		});
         Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, Color.WHITE);
-        primaryStage.setScene(scene);
-		primaryStage.setTitle("Tourist club");
-		primaryStage.setMaxHeight(SCENE_HEIGHT + TITLE_HEIGHT);
-		primaryStage.setMinHeight(SCENE_HEIGHT + TITLE_HEIGHT);
-		primaryStage.setMaxWidth(SCENE_WIDTH + OUTLINE_WIDTH);
-		primaryStage.setMinWidth(SCENE_WIDTH + OUTLINE_WIDTH);
-		primaryStage.show();
+        windowOpener.showWindow(primaryStage, root, SCENE_WIDTH, SCENE_HEIGHT, "Tourists");
     }
 
 	private double SCENE_HEIGHT = 600;
 	private double SCENE_WIDTH = 700;
-	private double TITLE_HEIGHT = 35;
-	private double OUTLINE_WIDTH = 15;
 	
 	private ConnecterDataBase connecter = new ConnecterDataBase();
 	private TableView<TableData> table = new TableView<>();
+	private WindowOpener windowOpener = WindowOpener.getInstance();
 }
