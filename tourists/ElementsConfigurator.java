@@ -137,108 +137,173 @@ public class ElementsConfigurator{
 		table.getColumns().setAll(columns);
 	}
 	
-	public void configureScene(Group group, List<Text> texts, List<Text> textFields, List<TextField> fields, 
-	List<CheckBox> flags, List<Button> buttons, boolean hasTable){
+	public void configureScene(Group group, MenuElements elements, double height, double width){
 		if(group == null ){
-			System.err.println("Null arguments for configureScene");
+			throw new NullPointerException("Null arguments for configureScene");
 		}
-		int countElements = ((texts == null) ? 0 : texts.size()) + 
-		((textFields == null) ? 0 : textFields.size()) + 
-		((flags == null) ? 0 : flags.size()) + 
-		((buttons == null) ? 0 : buttons.size());
+		int countElements = elements.getCount();
+		int countElementsInColumn = (int)height / ((int)ELEMENT_SIZE * 2);
+		int columns = countElements / countElementsInColumn;
 		double buttonX;
-		double stepY = SCENE_HEIGHT / (countElements + 1);
+		double stepY = height / (countElementsInColumn + 1);
+		double stepX = width / (columns + 1);
 		double currentY = stepY;
-		double shiftX = 0;
-		int delim;
-		int currentElement = 1;
-		int maxElements;
-		if(countElements > MAX_ELEMENTS_IN_COLUM){
-			buttonX = BUTTON_X / 2;
-			delim = 4;
-			stepY = SCENE_HEIGHT / (countElements / 2 + 1);
-			maxElements = countElements / 2 + 1;
-		}
-		else{
-			buttonX = BUTTON_X;
-			delim = 2;
-			stepY = SCENE_HEIGHT / (countElements + 1);
-			maxElements = countElements;
-		}
+		double currentX = 0;
 		if(hasTable){
-			shiftX = SHIFT_X;
+			currentX = SHIFT_X;
+		}
+		ConfigurationParams params = new ConfigurationParams(countElementsInColumn, currentY, currentX, stepX, stepY);
+		configureTexts(elements.getTexts());
+		configureTextsWithFields(elements.getTextsWithFields(), elements.getFields(), group, params);
+		configureFlags(flags, group, params);
+	}
+	
+	private void configureTexts(List<Text> texts, Group group, ConfigurationParams params){
+		if(group == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureTexts: group is null");
+		}
+		if(params == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureTexts: params are null");
 		}
 		if(texts != null){
 			Iterator<Text> iterText = texts.iterator();
 			while(iterText.hasNext()){
-				if(currentElement > maxElements){
-					currentElement = 1;
-					currentY = stepY;
-					shiftX = SHIFT_X;
-				}
 				Text text = iterText.next();
-				text.setX(shiftX + LEFT_LIMIT_X);
-				text.setY(currentY);
-				currentY += stepY;
+				text.setX(params.getCurrentX() + LEFT_LIMIT_X);
+				text.setY(params.getCurrentY());
+				params.incrementCurrentY();
 				text.setFont(Font.font("Tahoma", FontWeight.NORMAL, ELEMENT_SIZE));
 				group.getChildren().add(text);
-				++currentElement;
+				params.incrementElements();
 			}
 		}
-		if(textFields != null && fields != null){
+	}
+	
+	private void configureTextsWithFields(List<Text> texts, List<TextField> fields, Group group, ConfigurationParams params){
+		if(group == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureTextsWithFields: group is null");
+		}
+		if(params == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureTextsWithFields: params are null");
+		}
+		if(texts != null && fields != null){
 			Iterator<Text> iterTextField = textFields.iterator();
 			Iterator<TextField> iterField = fields.iterator();
 			while(iterTextField.hasNext() && iterField.hasNext()){
-				if(currentElement > maxElements){
-					currentElement = 1;
-					currentY = stepY;
-					shiftX = SHIFT_X;
-				}
 				TextField textField = iterField.next();
-				textField.setTranslateX(shiftX + SCENE_WIDTH / delim);
-				textField.setTranslateY(currentY);
+				textField.setTranslateX(params.getCurrentX() + params.getStepX() / 2);
+				textField.setTranslateY(params.getCurrentY());
 				Text text = iterTextField.next();
-				text.setX(shiftX + LEFT_LIMIT_X);
-				text.setY(currentY);
-				currentY += stepY;
+				text.setX(params.getCurrentX() + LEFT_LIMIT_X);
+				text.setY(params.getCurrentY());
+				params.incrementCurrentY();
 				group.getChildren().add(textField);
 				group.getChildren().add(text);
-				++currentElement;
+				params.incrementElements();
 			}
+		}
+	}
+	
+	private void configureFlags(List<CheckBox> flags, Group group, ConfigurationParams params){
+		if(group == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureFlags: group is null");
+		}
+		if(params == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureFlags: params are null");
 		}
 		if(flags != null){
 			Iterator<CheckBox> iterFlag = flags.iterator();
 			while(iterFlag.hasNext()){
-				if(currentElement > maxElements){
-					currentElement = 1;
-					currentY = stepY;
-					shiftX = SHIFT_X;
-				}
 				CheckBox flag = iterFlag.next();
-				flag.setTranslateX(shiftX + LEFT_LIMIT_X);
-				flag.setTranslateY(currentY);
-				currentY += stepY;
+				flag.setTranslateX(params.getCurrentX() + LEFT_LIMIT_X);
+				flag.setTranslateY(params.getCurrentY());
+				params.incrementCurrentY();
 				group.getChildren().add(flag);
-				++currentElement;
+				params.incrementElements();
 			}
+		}
+	}
+	
+	private void configureFlags(List<Button> buttons, Group group, ConfigurationParams params){
+		if(group == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureFlags: group is null");
+		}
+		if(params == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureFlags: params are null");
 		}
 		if(buttons != null){
 			Iterator<Button> iterButton = buttons.iterator();
 			while(iterButton.hasNext()){
-				if(currentElement > maxElements){
-					currentElement = 1;
-					currentY = stepY;
-					shiftX = SHIFT_X;
-				}
 				Button button = iterButton.next();
-				button.setTranslateX(shiftX + buttonX);
-				button.setTranslateY(currentY);
-				currentY += stepY;
+				button.setTranslateX(params.getCurrentX() + params.getStepX() / 3);
+				button.setTranslateY(params.getCurrentY());
+				params.incrementCurrentY();
 				button.setFont(Font.font("Tahoma", FontWeight.NORMAL, ELEMENT_SIZE));
 				group.getChildren().add(button);
-				++currentElement;
+				params.incrementElements();
 			}
 		}
+	}
+	
+	class ConfigurationParams{
+		public ConfigurationParams(int maxElementsInColumn, double currentY, double currentX, double stepX, double stepY){
+			if(maxElementsInColumn <= 0){
+				throw new RunTimeException("Can't create ConfigurationParams: maxElementsInColumn less or equal zero");
+			}
+			if(currentY <= 0){
+				throw new RunTimeException("Can't create ConfigurationParams: currentY less or equal zero");
+			}
+			if(currentX <= 0){
+				throw new RunTimeException("Can't create ConfigurationParams: currentX less or equal zero");
+			}
+			if(stepX <= 0){
+				throw new RunTimeException("Can't create ConfigurationParams: stepX less or equal zero");
+			}
+			if(stepY <= 0){
+				throw new RunTimeException("Can't create ConfigurationParams: stepY less or equal zero");
+			}
+			this.maxElementsInColumn = maxElementsInColumn;
+			this.currentY = currentY;
+			this.currentX = currentX;
+			this.stepX = stepX;
+			this.stepY = stepY;
+		}
+		
+		public int getCurrentElement(){
+			return currentElement
+		}
+		
+		public void getCurrentY(){
+			return currentY;
+		}
+		
+		public void getStepX(){
+			return stepX;
+		}
+		
+		public void getCurrentX(){
+			return currentX;
+		}
+		
+		public void incrementElements(){
+			++currentElement;
+			if(currentElement > maxElementsInColumn){
+				currentElement = 1;
+				currentY = stepY;
+				currentX += stepX;
+			}
+		}
+		
+		public void incrementCurrentY(){
+			currentY += stepY;
+		}
+		
+		private int maxElements;
+		private double stepX;
+		private double stepY;
+		private double currentX;
+		private double currentY;
+		private int currentElement = 1;
 	}
 	
 	private double SCENE_HEIGHT = 600;
@@ -255,6 +320,12 @@ public class ElementsConfigurator{
 	private double LEFT_LIMIT_X = 20;
 	private double ELEMENT_SIZE = 15;
 	private int MAX_ELEMENTS_IN_COLUM = 20;
+	
+	private double DELIM_FOR_BUTTON_X_FOR_SCENE_WITH_ONE_COLUMN = 3;
+	private double DELIM_FOR_COUNT_ELEMENTS_FOR_SCENE_WITH_TWO_COLUMNS = 2;
+	private double DELIM_FOR_TEXT_FIELD_X_FOR_SCENE_WITH_ONE_COLUMN = 2;
+	private double DELIM_FOR_TEXT_FIELD_X_FOR_SCENE_WITH_TWO_COLUMNS = 4;
+	
 	private String DELIM = ";";
 	private static ElementsConfigurator instance;
 }
