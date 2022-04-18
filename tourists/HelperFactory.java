@@ -2,7 +2,7 @@ package tourists;
 
 import java.util.*;
 
-class HelperFactory{
+public class HelperFactory{
 	private HelperFactory(){}
 	
 	public static HelperFactory getInstance(){

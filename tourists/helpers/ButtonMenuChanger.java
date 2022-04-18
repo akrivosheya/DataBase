@@ -4,38 +4,32 @@ import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.text.*;
 import javafx.scene.control.*;
-import javafx.scene.paint.Color;
 import java.util.*;
 
 import tourists.*;
 
 public class ButtonMenuChanger implements ButtonHelper{
 	@Override
-	public void doOnAction(String key, String nextMenu, Map<String, Group> groups, 
-	MenuElements elements, TableView<TableData> table){
-		if(!(key == null || nextMenu == null || groups == null)){
-			if(groups.containsKey(nextMenu)){
-				if(elements.getFields() != null){
-					Iterator<TextField> iteratorTextField = elements.getFields().iterator();
-					while(iteratorTextField.hasNext()){
-						iteratorTextField.next().setText("");
-					}
-				}
-				if(elements.getFlags() != null){
-					Iterator<CheckBox> iteratorFlag = elements.getFlags().iterator();
-					while(iteratorFlag.hasNext()){
-						iteratorFlag.next().setSelected(false);
-					}
-				}
-				groups.get(key).setVisible(false);
-				groups.get(key).getChildren().remove(table);
-				groups.get(nextMenu).setVisible(true);
-			}
-			else{
-				windowOpener.sendInformation("Is not ready");
-			}
+	public void doOnAction(String menu, String nextMenu, Map<String, Group> groups, 
+	MenuElements elements, TableView<TableData> table, ConnecterDataBase connecter, QueryMaster queryMaster){
+		if(menu == null){
+			throw new NullPointerException("Problem in ButtonMenuChanger.doOnAction: menu is null");
 		}
+		if(nextMenu == null){
+			throw new NullPointerException("Problem in ButtonMenuChanger.doOnAction: nextMenu is null");
+		}
+		if(groups == null){
+			throw new NullPointerException("Problem in ButtonMenuChanger.doOnAction: groups is null");
+		}
+		if(!groups.containsKey(nextMenu)){
+			throw new RuntimeException("Problem in ButtonMenuChanger.doOnAction: there is not " + nextMenu);
+		}
+		if(!groups.containsKey(menu)){
+			throw new RuntimeException("Problem in ButtonMenuChanger.doOnAction: there is not " + menu);
+		}
+		ElementsCleaner.cleanElements(elements);
+		groups.get(menu).setVisible(false);
+		groups.get(menu).getChildren().remove(table);
+		groups.get(nextMenu).setVisible(true);
 	}
-	
-	private WindowOpener windowOpener = WindowOpener.getInstance();
 }

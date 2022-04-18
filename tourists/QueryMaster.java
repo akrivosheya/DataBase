@@ -5,7 +5,7 @@ import java.io.*;
 
 import tourists.helpers.QueryHelper;
 
-class QueryMaster{
+public class QueryMaster{
 	public List<String> getQueries(String fileName){
 		if(fileName == null){
 			return null;

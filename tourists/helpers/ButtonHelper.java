@@ -9,6 +9,6 @@ import java.util.*;
 import tourists.*;
 
 public interface ButtonHelper{
-	public void doOnAction(String key, String param, Map<String, Group> groups, 
-	MenuElements elements, TableView<TableData> table);
+	public void doOnAction(String menu, String param, Map<String, Group> groups, 
+	MenuElements elements, TableView<TableData> table, ConnecterDataBase connecter, QueryMaster queryMaster);
 }

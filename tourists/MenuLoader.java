@@ -187,7 +187,7 @@ class MenuLoader{
 		if(!doubleNext(reader)){
 			return false;
 		}
-		StringBuilder text = new StringBuilder(""), type = new StringBuilder(""), param = new StringBuilder("");
+		StringBuilder text = new StringBuilder(""), helper = new StringBuilder(""), param = new StringBuilder("");
 		while(reader.getEventType() == XMLStreamConstants.START_ELEMENT && 
 		reader.getName().toString().equals("button")){
 			if(!doubleNext(reader)){
@@ -200,8 +200,8 @@ class MenuLoader{
 				}
 			}
 			if(reader.getEventType() == XMLStreamConstants.START_ELEMENT &&
-			reader.getName().toString().equals("type")){
-				if(!getText(reader, "type", type)){
+			reader.getName().toString().equals("helper")){
+				if(!getText(reader, "helper", helper)){
 					return false;
 				}
 			}
@@ -211,9 +211,9 @@ class MenuLoader{
 					return false;
 				}
 			}
-			buttons.add(new ButtonData(text.toString(), type.toString(), param.toString()));
+			buttons.add(new ButtonData(text.toString(), helper.toString(), param.toString()));
 			text.delete(0, text.length());
-			type.delete(0, type.length());
+			helper.delete(0, helper.length());
 			param.delete(0, param.length());
 			if(!(reader.getEventType() == XMLStreamConstants.END_ELEMENT && 
 			reader.getName().toString().equals("button"))){

@@ -13,7 +13,7 @@
 		<buttons>
 			<button>
 				<text>Connect</text>
-				<type>connect</type>
+				<helper>tourists.helpers.ButtonConnecter</helper>
 				<param>activity</param>
 			</button>
 		</buttons>
@@ -26,25 +26,25 @@
 		<buttons>
 			<button>
 				<text>Reset database</text>
-				<type>reset</type>
+				<helper>tourists.helpers.ButtonResetter</helper>
 			</button>
 			<button>
 				<text>Set test database</text>
-				<type>test</type>
+				<helper>tourists.helpers.ButtonTest</helper>
 			</button>
 			<button>
 				<text>Select information</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>select</param>
 			</button>
 			<button>
 				<text>Edit information</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>edit</param>
 			</button>
 			<button>
 				<text>Disconnect</text>
-				<type>disconnect</type>
+				<helper>tourists.helpers.ButtonDisconnecter</helper>
 				<param>activation</param>
 			</button>
 		</buttons>
@@ -57,42 +57,42 @@
 		<buttons>
 			<button>
 				<text>Tourists</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>select_tourists</param>
 			</button>
 			<button>
 				<text>Coaches</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>select_coaches</param>
 			</button>
 			<button>
 				<text>Directors</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>select_directors</param>
 			</button>
 			<button>
 				<text>Competitions</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>select_competitions</param>
 			</button>
 			<button>
 				<text>Coaches time</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>select_coaches_time</param>
 			</button>
 			<button>
 				<text>Routes</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>select_routes</param>
 			</button>
 			<button>
 				<text>Instructors</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>select_instructors</param>
 			</button>
 			<button>
 				<text>Back</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>activity</param>
 			</button>
 		</buttons>
@@ -105,102 +105,102 @@
 		<buttons>
 			<button>
 				<text>Tourists</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>tourists.helpers.TouristsHelper</param>
 			</button>
 			<button>
 				<text>Sportsmen</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_sportsmen</param>
 			</button>
 			<button>
 				<text>Coaches</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_coaches</param>
 			</button>
 			<button>
 				<text>Directors</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_directors</param>
 			</button>
 			<button>
 				<text>Sections</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_sections</param>
 			</button>
 			<button>
 				<text>Groups</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_groups</param>
 			</button>
 			<button>
 				<text>Trainings</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_trainings</param>
 			</button>
 			<button>
 				<text>Trains</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_trains</param>
 			</button>
 			<button>
 				<text>Attendance</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_attendance</param>
 			</button>
 			<button>
 				<text>Competitions</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_competitions</param>
 			</button>
 			<button>
 				<text>Participation</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_participation</param>
 			</button>
 			<button>
 				<text>Hikes</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_hikes</param>
 			</button>
 			<button>
 				<text>Routes</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_routes</param>
 			</button>
 			<button>
 				<text>Points</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_points</param>
 			</button>
 			<button>
 				<text>Points of routes</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_contains</param>
 			</button>
 			<button>
 				<text>Checkoints</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_checkpoints</param>
 			</button>
 			<button>
 				<text>Conducted hikes</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_conducted_hikes</param>
 			</button>
 			<button>
 				<text>Diaries</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_diaries</param>
 			</button>
 			<button>
 				<text>Went to hike</text>
-				<type>to_edit</type>
+				<helper>tourists.helpers.ButtonToEditionMenu</helper>
 				<param>edit_went_hike</param>
 			</button>
 			<button>
 				<text>Back</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>activity</param>
 			</button>
 		</buttons>
@@ -231,12 +231,12 @@
 		<buttons>
 			<button>
 				<text>Find</text>
-				<type>select</type>
+				<helper>tourists.helpers.ButtonSelecter</helper>
 				<param>tourists.helpers.TouristsHelper</param>
 			</button>
 			<button>
 				<text>Back</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>select</param>
 			</button>
 		</buttons>
@@ -247,19 +247,19 @@
 		<buttons>
 			<button>
 				<text>Create</text>
-				<type>create</type>
+				<helper>tourists.helpers.ButtonToCreating</helper>
 			</button>
 			<button>
 				<text>Update</text>
-				<type>update</type>
+				<helper>tourists.helpers.ButtonToUpdating</helper>
 			</button>
 			<button>
 				<text>Delete</text>
-				<type>delete</type>
+				<helper>tourists.helpers.ButtonDeleter</helper>
 			</button>
 			<button>
 				<text>Back</text>
-				<type>next</type>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
 				<param>edit</param>
 			</button>
 		</buttons>

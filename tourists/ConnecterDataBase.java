@@ -3,7 +3,7 @@ package tourists;
 import java.sql.*;
 import java.util.*;
 
-class ConnecterDataBase{
+public class ConnecterDataBase{
 	public boolean connect(String user, String password, String database, StringBuilder result){
 		String currentDatabase;
 		if(database.length() == 0){

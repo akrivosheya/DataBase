@@ -1,23 +1,23 @@
 package tourists;
 
 class ButtonData{
-	public ButtonData(String text, String type, String param){
+	public ButtonData(String text, String helper, String param){
 		this.text = text;
-		this.type = type;
+		this.helper = helper;
 		this.param = param;
 	}
 	
 	@Override
 	public String toString(){
-		return text + " " + type + " " + param;
+		return text + " " + helper + " " + param;
 	}
 	
 	public String getText(){
 		return text;
 	}
 	
-	public String getType(){
-		return type;
+	public String getHelper(){
+		return helper;
 	}
 	
 	public String getParam(){
@@ -25,6 +25,6 @@ class ButtonData{
 	}
 	
 	private String text;
-	private String type;
+	private String helper;
 	private String param;
 }

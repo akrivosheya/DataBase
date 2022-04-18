@@ -4,7 +4,7 @@ import javafx.scene.text.*;
 import javafx.scene.control.*;
 import java.util.*;
 
-class StringMaster{
+public class StringMaster{
 	public static Map<String, String> getMapFormTextsAndFields(List<Text> texts, List<TextField> fields){
 		if(fields == null || texts == null){
 			return null;
