@@ -4,7 +4,7 @@ import javafx.scene.text.*;
 import javafx.scene.control.*;
 import java.util.*;
 
-class MenuElements{
+public class MenuElements{
 	public void setHasTable(boolean hasTable){
 		this.hasTable = hasTable;
 	}
@@ -55,12 +55,12 @@ class MenuElements{
 	
 	public int getCount(){
 		return ((texts == null) ? 0 : texts.size()) + 
-		((textFields == null) ? 0 : textFields.size()) + 
+		((textsWithFields == null) ? 0 : textsWithFields.size()) + 
 		((flags == null) ? 0 : flags.size()) + 
 		((buttons == null) ? 0 : buttons.size());
 	}
 
-	private boolean hasTable;
+	private boolean hasTable = false;
 	private List<Text> texts;
 	private List<Text> textsWithFields;
 	private List<TextField> fields;

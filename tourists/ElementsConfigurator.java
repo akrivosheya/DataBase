@@ -142,20 +142,21 @@ public class ElementsConfigurator{
 			throw new NullPointerException("Null arguments for configureScene");
 		}
 		int countElements = elements.getCount();
-		int countElementsInColumn = (int)height / ((int)ELEMENT_SIZE * 2);
-		int columns = countElements / countElementsInColumn;
-		double buttonX;
+		int maxElementsInColumn = (int)height / ((int)ELEMENT_SIZE * 2);
+		int columns = countElements / maxElementsInColumn;
+		int countElementsInColumn = countElements / (columns + 1) + 1;
 		double stepY = height / (countElementsInColumn + 1);
-		double stepX = width / (columns + 1);
+		double stepX = width / (columns + 1 + ((elements.hasTable()) ? COLUMNS_FOR_TABLE : 0));
 		double currentY = stepY;
 		double currentX = 0;
-		if(hasTable){
-			currentX = SHIFT_X;
+		if(elements.hasTable()){
+			currentX = COLUMNS_FOR_TABLE * stepX;
 		}
 		ConfigurationParams params = new ConfigurationParams(countElementsInColumn, currentY, currentX, stepX, stepY);
-		configureTexts(elements.getTexts());
+		configureTexts(elements.getTexts(), group, params);
 		configureTextsWithFields(elements.getTextsWithFields(), elements.getFields(), group, params);
-		configureFlags(flags, group, params);
+		configureFlags(elements.getFlags(), group, params);
+		configureButtons(elements.getButtons(), group, params);
 	}
 	
 	private void configureTexts(List<Text> texts, Group group, ConfigurationParams params){
@@ -187,7 +188,7 @@ public class ElementsConfigurator{
 			throw new NullPointerException("Can't execute ElementsConfigurator.configureTextsWithFields: params are null");
 		}
 		if(texts != null && fields != null){
-			Iterator<Text> iterTextField = textFields.iterator();
+			Iterator<Text> iterTextField = texts.iterator();
 			Iterator<TextField> iterField = fields.iterator();
 			while(iterTextField.hasNext() && iterField.hasNext()){
 				TextField textField = iterField.next();
@@ -224,7 +225,7 @@ public class ElementsConfigurator{
 		}
 	}
 	
-	private void configureFlags(List<Button> buttons, Group group, ConfigurationParams params){
+	private void configureButtons(List<Button> buttons, Group group, ConfigurationParams params){
 		if(group == null){
 			throw new NullPointerException("Can't execute ElementsConfigurator.configureFlags: group is null");
 		}
@@ -248,19 +249,19 @@ public class ElementsConfigurator{
 	class ConfigurationParams{
 		public ConfigurationParams(int maxElementsInColumn, double currentY, double currentX, double stepX, double stepY){
 			if(maxElementsInColumn <= 0){
-				throw new RunTimeException("Can't create ConfigurationParams: maxElementsInColumn less or equal zero");
+				throw new RuntimeException("Can't create ConfigurationParams: maxElementsInColumn less or equal zero");
 			}
 			if(currentY <= 0){
-				throw new RunTimeException("Can't create ConfigurationParams: currentY less or equal zero");
+				throw new RuntimeException("Can't create ConfigurationParams: currentY less or equal zero");
 			}
-			if(currentX <= 0){
-				throw new RunTimeException("Can't create ConfigurationParams: currentX less or equal zero");
+			if(currentX < 0){
+				throw new RuntimeException("Can't create ConfigurationParams: currentX less zero");
 			}
 			if(stepX <= 0){
-				throw new RunTimeException("Can't create ConfigurationParams: stepX less or equal zero");
+				throw new RuntimeException("Can't create ConfigurationParams: stepX less or equal zero");
 			}
 			if(stepY <= 0){
-				throw new RunTimeException("Can't create ConfigurationParams: stepY less or equal zero");
+				throw new RuntimeException("Can't create ConfigurationParams: stepY less or equal zero");
 			}
 			this.maxElementsInColumn = maxElementsInColumn;
 			this.currentY = currentY;
@@ -270,18 +271,18 @@ public class ElementsConfigurator{
 		}
 		
 		public int getCurrentElement(){
-			return currentElement
+			return currentElement;
 		}
 		
-		public void getCurrentY(){
+		public double getCurrentY(){
 			return currentY;
 		}
 		
-		public void getStepX(){
+		public double getStepX(){
 			return stepX;
 		}
 		
-		public void getCurrentX(){
+		public double getCurrentX(){
 			return currentX;
 		}
 		
@@ -298,7 +299,7 @@ public class ElementsConfigurator{
 			currentY += stepY;
 		}
 		
-		private int maxElements;
+		private int maxElementsInColumn;
 		private double stepX;
 		private double stepY;
 		private double currentX;
@@ -306,25 +307,11 @@ public class ElementsConfigurator{
 		private int currentElement = 1;
 	}
 	
-	private double SCENE_HEIGHT = 600;
-	private double SCENE_WIDTH = 700;
-	private double INFORMATION_HEIGHT = 100;
-	private double INFORMATION_WIDTH = 300;
-	private double TABLE_HEIGHT = 400;
-	private double TABLE_WIDTH = 400;
 	private double TITLE_HEIGHT = 35;
 	private double OUTLINE_WIDTH = 15;
-	private double SHIFT_X = 350;
-	private double SCENE_CENTER = 250;
-	private double BUTTON_X = 235;
 	private double LEFT_LIMIT_X = 20;
 	private double ELEMENT_SIZE = 15;
-	private int MAX_ELEMENTS_IN_COLUM = 20;
-	
-	private double DELIM_FOR_BUTTON_X_FOR_SCENE_WITH_ONE_COLUMN = 3;
-	private double DELIM_FOR_COUNT_ELEMENTS_FOR_SCENE_WITH_TWO_COLUMNS = 2;
-	private double DELIM_FOR_TEXT_FIELD_X_FOR_SCENE_WITH_ONE_COLUMN = 2;
-	private double DELIM_FOR_TEXT_FIELD_X_FOR_SCENE_WITH_TWO_COLUMNS = 4;
+	private int COLUMNS_FOR_TABLE = 2;
 	
 	private String DELIM = ";";
 	private static ElementsConfigurator instance;

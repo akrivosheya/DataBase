@@ -11,7 +11,7 @@ class MenuData{
 	
 	@Override
 	public String toString(){
-		return name + "\n" + texts + "\n" + fields + "\n" + flags + "\n" + buttons;
+		return name + "\nTexts: " + texts + "\nFields: " + fields + "\nFlags: " + flags + "\nButtons: " + buttons;
 	}
 	
 	public String getName(){

@@ -29,6 +29,12 @@ class Controller{
 			configurator.createTexts(menuData.getTexts(), texts);
 			configurator.createTextsWithFields(menuData.getFields(), textFields, fields);
 			configurator.createFlags(menuData.getFlags(), flags);
+			MenuElements elements = new MenuElements();
+			elements.setHasTable(menuData.hasTable());
+			elements.setTexts(texts);
+			elements.setTextsWithFields(textFields);
+			elements.setFields(fields);
+			elements.setFlags(flags);
 			Iterator<ButtonData> iteratorButtonData = menuData.getButtons().iterator();
 			ButtonData buttonData;
 			while(iteratorButtonData.hasNext()){
@@ -37,14 +43,15 @@ class Controller{
 				Button button = new Button(text);
 				String type = buttonData.getType();
 				String param = buttonData.getParam();
-				if(!configureButton(type, key, param, groups, textFields, fields, flags, button, table)){
+				if(!configureButton(type, key, param, groups, elements, button, table)){
 					System.err.println(text + " button can't be added");
 				}
 				else{
 					buttons.add(button);
 				}
 			}
-			configurator.configureScene(group, texts, textFields, fields, flags, buttons, menuData.hasTable());
+			elements.setButtons(buttons);
+			configurator.configureScene(group, elements, SCENE_HEIGHT, SCENE_WIDTH);
 			if(!menuData.isStarting()){
 				group.setVisible(false);
 			}
@@ -54,21 +61,21 @@ class Controller{
 	}
 	
 	private boolean configureButton(String type, String key, String param, Map<String, Group> groups, 
-	List<Text> textFields, List<TextField> fields, List<CheckBox> flags, Button button, TableView<TableData> table){
+	MenuElements elements, Button button, TableView<TableData> table){
 		switch(type){
 			case "next":
 				button.setOnAction(e->{
-					((ButtonHelper)HelperFactory.getInstance().getHelper("tourists.helpers.ButtonMenuChanger")).doOnAction(key, param, groups, null, fields, flags, table);
+					((ButtonHelper)HelperFactory.getInstance().getHelper("tourists.helpers.ButtonMenuChanger")).doOnAction(key, param, groups, elements, table);
 				});
 				return true;
 			case "disconnect":
 				button.setOnAction(e->{
 					connecter.disconnect();
-					baseButtonConfiguration(key, param, fields, flags, groups, table);
+					baseButtonConfiguration(key, param, elements, groups, table);
 				});
 				return true;
 			case "connect":
-				if(!configureConnectingButton(key, button, param, fields, flags, groups, table)){
+				if(!configureConnectingButton(key, button, param, elements, groups, table)){
 					return false;
 				}
 				return true;
@@ -81,7 +88,7 @@ class Controller{
 					}
 					else{
 						groups.get("to_edit").getChildren().add(table);
-						baseButtonConfiguration(key, "to_edit",  null, null, groups, table);
+						baseButtonConfiguration(key, "to_edit", elements, groups, table);
 					}
 				});
 				return true;
@@ -141,7 +148,8 @@ class Controller{
 				button.setOnAction(e->{
 					QueryHelper helper = (QueryHelper)HelperFactory.getInstance().getHelper(param);
 					queryMaster.setHelper(helper);
-					String query = queryMaster.getSelectingQuery(StringMaster.getMapFormTextsAndFields(textFields, fields), StringMaster.getFlags(flags));
+					String query = queryMaster.getSelectingQuery(StringMaster.getMapFormTextsAndFields(elements.getTextsWithFields(), elements.getFields()), 
+					StringMaster.getFlags(elements.getFlags()));
 					if(query == null){
 						windowOpener.sendInformation("Can't get quiery for that operation");
 						return;
@@ -201,18 +209,18 @@ class Controller{
 		}
 	}
 	
-	private void baseButtonConfiguration(String key, String nextMenu, List<TextField> textFields, List<CheckBox> flags,
+	private void baseButtonConfiguration(String key, String nextMenu, MenuElements elements,
 	Map<String, Group> groups, TableView<TableData> table){
 		if(!(key == null || nextMenu == null || groups == null)){
 			if(groups.containsKey(nextMenu)){
-				if(textFields != null){
-					Iterator<TextField> iteratorTextField = textFields.iterator();
+				if(elements.getFields() != null){
+					Iterator<TextField> iteratorTextField = elements.getFields().iterator();
 					while(iteratorTextField.hasNext()){
 						iteratorTextField.next().setText("");
 					}
 				}
-				if(flags != null){
-					Iterator<CheckBox> iteratorFlag = flags.iterator();
+				if(elements.getFlags() != null){
+					Iterator<CheckBox> iteratorFlag = elements.getFlags().iterator();
 					while(iteratorFlag.hasNext()){
 						iteratorFlag.next().setSelected(false);
 					}
@@ -227,22 +235,22 @@ class Controller{
 		}
 	}
 	
-	private boolean configureConnectingButton(String key,Button button, String param, List<TextField> textFields, 
-	List<CheckBox> flags, Map<String, Group> groups, TableView<TableData> table){
+	private boolean configureConnectingButton(String key, Button button, String param,
+	MenuElements elements, Map<String, Group> groups, TableView<TableData> table){
 		int indexUserField = 0;
 		int indexPasswordField = 1;
 		int indexDatabaseField = 2;
 		int textFieldsSize = 3;
-		if(textFields.size() < textFieldsSize){
+		if(elements.getFields().size() < textFieldsSize){
 			return false;
 		}
 		button.setOnAction(e->{
-			String user = textFields.get(indexUserField).getText();
-			String password = textFields.get(indexPasswordField).getText();
-			String database = textFields.get(indexDatabaseField).getText();
+			String user = elements.getFields().get(indexUserField).getText();
+			String password = elements.getFields().get(indexPasswordField).getText();
+			String database = elements.getFields().get(indexDatabaseField).getText();
 			StringBuilder result = new StringBuilder("");
 			if(connecter.connect(user, password, database, result)){
-				baseButtonConfiguration(key, param, textFields, flags, groups, table);
+				baseButtonConfiguration(key, param, elements, groups, table);
 			}
 			else{
 				windowOpener.sendInformation(result.toString());
@@ -253,18 +261,6 @@ class Controller{
 	
 	private double SCENE_HEIGHT = 600;
 	private double SCENE_WIDTH = 700;
-	private double INFORMATION_HEIGHT = 100;
-	private double INFORMATION_WIDTH = 300;
-	private double TABLE_HEIGHT = 400;
-	private double TABLE_WIDTH = 400;
-	private double TITLE_HEIGHT = 35;
-	private double OUTLINE_WIDTH = 15;
-	private double SHIFT_X = 350;
-	private double SCENE_CENTER = 250;
-	private double BUTTON_X = 235;
-	private double LEFT_LIMIT_X = 20;
-	private double ELEMENT_SIZE = 15;
-	private int MAX_ELEMENTS_IN_COLUM = 20;
 	private String MENUES_FILE = "tourists/menues.xml";
 	private String RESET_FILE = "SQL_commands_reset.txt";
 	private String TEST_FILE = "SQL_commands_test.txt";

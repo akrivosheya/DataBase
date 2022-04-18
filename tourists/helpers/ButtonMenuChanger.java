@@ -12,17 +12,17 @@ import tourists.*;
 public class ButtonMenuChanger implements ButtonHelper{
 	@Override
 	public void doOnAction(String key, String nextMenu, Map<String, Group> groups, 
-	List<Text> textFields, List<TextField> fields, List<CheckBox> flags, TableView<TableData> table){
+	MenuElements elements, TableView<TableData> table){
 		if(!(key == null || nextMenu == null || groups == null)){
 			if(groups.containsKey(nextMenu)){
-				if(fields != null){
-					Iterator<TextField> iteratorTextField = fields.iterator();
+				if(elements.getFields() != null){
+					Iterator<TextField> iteratorTextField = elements.getFields().iterator();
 					while(iteratorTextField.hasNext()){
 						iteratorTextField.next().setText("");
 					}
 				}
-				if(flags != null){
-					Iterator<CheckBox> iteratorFlag = flags.iterator();
+				if(elements.getFlags() != null){
+					Iterator<CheckBox> iteratorFlag = elements.getFlags().iterator();
 					while(iteratorFlag.hasNext()){
 						iteratorFlag.next().setSelected(false);
 					}
@@ -37,5 +37,5 @@ public class ButtonMenuChanger implements ButtonHelper{
 		}
 	}
 	
-	private WindowOpener windowOpener = WindowOpener.getInstance()();
+	private WindowOpener windowOpener = WindowOpener.getInstance();
 }

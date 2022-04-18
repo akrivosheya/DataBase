@@ -5,18 +5,14 @@ import java.util.*;
 import javax.xml.stream.*;
 
 class MenuLoader{
-	public boolean getMapMenuData(String configFileName, Map<String, MenuData> menuesData){
-		if(configFileName == null || menuesData == null){
-			return false;
+	public boolean getMapMenuData(String configFileName, Map<String, MenuData> menuDatas){
+		if(configFileName == null){
+			throw new NullPointerException("Can't execute MenuLoader.getMapMenuData: configFileName is null");
+		}
+		if(menuDatas == null){
+			throw new NullPointerException("Can't execute MenuLoader.getMapMenuData: menuesData is null");
 		}
 		else{
-			List<String> texts = new ArrayList<String>();
-			List<String> fields = new ArrayList<String>();
-			List<String> flags = new ArrayList<String>();
-			List<ButtonData> buttons = new ArrayList<ButtonData>();
-			StringBuilder name = new StringBuilder("");
-			boolean hasTable = false;
-			boolean isStarting = false;
 			XMLStreamReader reader = null;
 			File file = new File(configFileName);
 			if(!file.exists()){
@@ -25,65 +21,13 @@ class MenuLoader{
 			}
 			try{
 				reader = XMLInputFactory.newInstance().createXMLStreamReader(new FileInputStream(file));
-				int indexMessage = 0;
 				if(reader.hasNext() && reader.next() == XMLStreamConstants.START_ELEMENT && 
 				reader.getName().toString().equals("menues")){
 					if(!doubleNext(reader)){
 						return false;
 					}
-					while(reader.getEventType() == XMLStreamConstants.START_ELEMENT && 
-					reader.getName().toString().equals("menu")){
-						if(!doubleNext(reader)){
-							return false;
-						}
-						if(reader.getEventType() == XMLStreamConstants.START_ELEMENT && 
-						reader.getName().toString().equals("name")){
-							if(!(getText(reader, "name", name))){
-								return false;
-							}
-						}
-						isStarting = getFlag(reader, "isStarting");
-						hasTable = getFlag(reader, "hasTable");
-						if(!getTexts(reader, texts, "texts", "text")){
-							return false;
-						}
-						if(!getTexts(reader, fields, "fields", "field")){
-							return false;
-						}
-						if(!getTexts(reader, flags, "flags", "flag")){
-							return false;
-						}
-						if(reader.getEventType() == XMLStreamConstants.START_ELEMENT && 
-						reader.getName().toString().equals("buttons")){
-							if(!(getButtons(reader, buttons) && reader.getEventType() == XMLStreamConstants.END_ELEMENT && 
-							reader.getName().toString().equals("buttons"))){
-								return false;
-							}
-						}
-						if(!(doubleNext(reader) && reader.getEventType() == XMLStreamConstants.END_ELEMENT &&
-						reader.getName().toString().equals("menu"))){
-							return false;
-						}
-						if(!doubleNext(reader)){
-							return false;
-						}
-						if(!menuesData.containsKey(name.toString())){
-							MenuData menuData = new MenuData(name.toString(), hasTable, isStarting);
-							menuData.setTexts(List.copyOf(texts));
-							menuData.setFields(List.copyOf(fields));
-							menuData.setFlags(List.copyOf(flags));
-							menuData.setButtons(List.copyOf(buttons));
-							menuesData.put(name.toString(), menuData);
-							name.delete(0, name.length());
-							texts.clear();
-							fields.clear();
-							flags.clear();
-							buttons.clear();
-							hasTable = false;
-						}
-						else{
-							return false;
-						}
+					if(!lookEachMenu(reader, menuDatas)){
+						return false;
 					}
 					if(!(reader.getEventType() == XMLStreamConstants.END_ELEMENT &&
 					reader.getName().toString().equals("menues"))){
@@ -99,6 +43,84 @@ class MenuLoader{
 				return false;
 			}
 		}
+		return true;
+	}
+	
+	private boolean lookEachMenu(XMLStreamReader reader, Map<String, MenuData> menuDatas) throws XMLStreamException{
+		if(reader == null){
+			throw new NullPointerException("Can't execute MenuLoader.lookEachMenu: reader is null");
+		}
+		if(menuDatas == null){
+			throw new NullPointerException("Can't execute MenuLoader.lookEachMenu: menuesData is null");
+		}
+		StringBuilder name = new StringBuilder("");
+		boolean hasTable = false;
+		boolean isStarting = false;
+		while(reader.getEventType() == XMLStreamConstants.START_ELEMENT && 
+		reader.getName().toString().equals("menu")){
+			if(!doubleNext(reader)){
+				return false;
+			}
+			if(reader.getEventType() == XMLStreamConstants.START_ELEMENT && 
+			reader.getName().toString().equals("name")){
+				if(!(getText(reader, "name", name))){
+					return false;
+				}
+			}
+			if(menuDatas.containsKey(name.toString())){
+				System.err.println("Can't create menus: menu " + name.toString() + " already exist");
+				return false;
+			}
+			isStarting = getFlag(reader, "isStarting");
+			hasTable = getFlag(reader, "hasTable");
+			MenuData menuData = new MenuData(name.toString(), hasTable, isStarting);
+			if(!readMenuData(reader, menuData)){
+				return false;
+			}
+			menuDatas.put(name.toString(), menuData);
+			name.delete(0, name.length());
+		}
+		return true;
+	}
+	
+	private boolean readMenuData(XMLStreamReader reader, MenuData menuData) throws XMLStreamException{
+		if(reader == null){
+			throw new NullPointerException("Can't execute MenuLoader.readMenuData: reader is null");
+		}
+		if(menuData == null){
+			throw new NullPointerException("Can't execute MenuLoader.readMenuData: menuData is null");
+		}
+		List<String> texts = new ArrayList<String>();
+		List<String> fields = new ArrayList<String>();
+		List<String> flags = new ArrayList<String>();
+		List<ButtonData> buttons = new ArrayList<ButtonData>();
+		if(!getTexts(reader, texts, "texts", "text")){
+			return false;
+		}
+		if(!getTexts(reader, fields, "fields", "field")){
+			return false;
+		}
+		if(!getTexts(reader, flags, "flags", "flag")){
+			return false;
+		}
+		if(reader.getEventType() == XMLStreamConstants.START_ELEMENT && 
+		reader.getName().toString().equals("buttons")){
+			if(!(getButtons(reader, buttons) && reader.getEventType() == XMLStreamConstants.END_ELEMENT && 
+			reader.getName().toString().equals("buttons"))){
+				return false;
+			}
+		}
+		if(!(doubleNext(reader) && reader.getEventType() == XMLStreamConstants.END_ELEMENT &&
+		reader.getName().toString().equals("menu"))){
+			return false;
+		}
+		if(!doubleNext(reader)){
+			return false;
+		}
+		menuData.setTexts(List.copyOf(texts));
+		menuData.setFields(List.copyOf(fields));
+		menuData.setFlags(List.copyOf(flags));
+		menuData.setButtons(List.copyOf(buttons));
 		return true;
 	}
 	
