@@ -11,7 +11,5 @@ public interface QueryHelper{
 	
 	public String getDeletingQuery(Map<String, String> params);
 	
-	public int getColumnsSize();
-	
 	public String getColumns();
 }

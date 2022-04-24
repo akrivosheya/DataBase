@@ -252,7 +252,7 @@
 	<menu>
 		<name>select_coaches</name>
 		<texts>
-			<text>Choose tourists filter</text>
+			<text>Choose coaches filter</text>
 		</texts>
 		<fields>
 			<field>Section</field>
@@ -260,7 +260,10 @@
 			<field>Salary</field>
 			<field>Specialization</field>
 			<field>Group</field>
-			<field>Training time</field>
+			<field>Trains after hour</field>
+			<field>Trains before hour</field>
+			<field>Trains after day</field>
+			<field>Trains before day</field>
 		</fields>
 		<dropdowns>
 			<dropdown>
@@ -276,6 +279,54 @@
 				<text>Find</text>
 				<helper>tourists.helpers.ButtonSelecter</helper>
 				<param>tourists.helpers.CoachesHelper</param>
+			</button>
+			<button>
+				<text>Back</text>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
+				<param>select</param>
+			</button>
+		</buttons>
+	</menu>
+	<menu>
+		<name>select_directors</name>
+		<texts>
+			<text>Choose directors filter</text>
+		</texts>
+		<fields>
+			<field>Salary</field>
+			<field>Birth</field>
+			<field>Age</field>
+			<field>Admission</field>
+		</fields>
+		<buttons>
+			<button>
+				<text>Find</text>
+				<helper>tourists.helpers.ButtonSelecter</helper>
+				<param>tourists.helpers.DirectorsHelper</param>
+			</button>
+			<button>
+				<text>Back</text>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
+				<param>select</param>
+			</button>
+		</buttons>
+	</menu>
+	<menu>
+		<name>select_competitions</name>
+		<texts>
+			<text>Choose competitions filter</text>
+		</texts>
+		<fields>
+			<field>Section</field>
+		</fields>
+		<flags>
+			<flag>All sections</flag>
+		</flags>
+		<buttons>
+			<button>
+				<text>Find</text>
+				<helper>tourists.helpers.ButtonSelecter</helper>
+				<param>tourists.helpers.CompetitionsHelper</param>
 			</button>
 			<button>
 				<text>Back</text>

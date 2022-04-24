@@ -187,11 +187,6 @@ public class TouristsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public int getColumnsSize(){
-		return columnsSize;
-	}
-	
-	@Override
 	public String getColumns(){
 		return "NAME;LAST_NAME;SEX;BIRTH;CATEGORY;TYPE";
 	}
@@ -229,6 +224,5 @@ public class TouristsHelper implements QueryHelper{
 		return query.toString();
 	}
 	
-	private int columnsSize = 7;
 	private String SELECT_FILE = "SQL_select_tourists.txt";
 }

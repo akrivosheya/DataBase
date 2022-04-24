@@ -3,7 +3,7 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
-public class CoachesHelper implements QueryHelper{
+public class DirectorsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
 		File file = new File(SELECT_FILE);
@@ -26,36 +26,18 @@ public class CoachesHelper implements QueryHelper{
 				fields.forEach((String attribute, String value)->{
 					if(!value.equals("")){
 						switch(attribute){
-							case "Section":
-								query.append("SECTIONS.NAME='" + value + "' AND\n");
+							case "Salary":
+								query.append("DIRECTORS.SALARY=" + value + " AND\n");
 								break;
-							case "Sex":
-								query.append("TOURISTS.SEX='" + value + "' AND\n");
+							case "Birth":
+								query.append("DIRECTORS.BIRTH='" + value + "' AND\n");
 								break;
 							case "Age":
 								int year = Calendar.getInstance().get(Calendar.YEAR);
-								query.append(year + "-EXTRACT(YEAR FROM TOURISTS.BIRTH)=" + value + " AND\n");
+								query.append(year + "-EXTRACT(YEAR FROM DIRECTORS.BIRTH)=" + value + " AND\n");
 								break;
-							case "Salary":
-								query.append("COACHES.CATEGORY=" + value + " AND\n");
-								break;
-							case "Specialization":
-								query.append("COACHES.SPECIALIZATION='" + value + "' AND\n");
-								break;
-							case "Group":
-								query.append("GROUPS.ID=" + value + " AND\n");
-								break;
-							case "Trains after hour":
-								query.append("TRAININGS.ENDING_HOUR>" + value + " AND\n");
-								break;
-							case "Trains before hour":
-								query.append("TRAININGS.BEGINNING_HOUR>" + value + " AND\n");
-								break;
-							case "Trains after day":
-								query.append("TRAININGS.DAY>=" + value + " AND\n");
-								break;
-							case "Trains before day":
-								query.append("TRAININGS.DAY<=" + value + " AND\n");
+							case "Admission":
+								query.append("DIRECTORS.ADMISSION='" + value + "' AND\n");
 								break;
 						}
 					}
@@ -71,18 +53,29 @@ public class CoachesHelper implements QueryHelper{
 		if(values == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("INSERT INTO COACHES VALUES(");
+		StringBuilder query = new StringBuilder("INSERT INTO DIRECTORS VALUES(");
 		query.append("1,");
-		if(values.containsKey("SPECIALIZATION")){
-			query.append("'" + values.get("SPECIALIZATION") + "'");
+		if(values.containsKey("NAME")){
+			query.append("'" + values.get("NAME") + "'");
 		}
 		query.append(",");
-		if(values.containsKey("SECTION")){
-			query.append("(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + values.get("SECTION") + "')");
+		if(values.containsKey("LAST_NAME")){
+			query.append("'" + values.get("LAST_NAME") + "'");
+		}
+		query.append(",");
+		if(values.containsKey("BIRTH")){
+			query.append("'" + values.get("BIRTH") + "'");
+		}
+		if(values.containsKey("ADMISSION")){
+			query.append("'" + values.get("ADMISSION") + "'");
 		}
 		query.append(",");
 		if(values.containsKey("SALARY")){
 			query.append(values.get("SALARY"));
+		}
+		query.append(",");
+		if(values.containsKey("SECTION")){
+			query.append("(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + values.get("SECTION") + "')");
 		}
 		query.append(")");
 		return query.toString();
@@ -90,7 +83,7 @@ public class CoachesHelper implements QueryHelper{
 	
 	@Override
 	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
-		if(values == null || fields == null || fields.size() <= 2){
+		if(values == null || fields == null){
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE COACHES SET ");
@@ -99,7 +92,10 @@ public class CoachesHelper implements QueryHelper{
 				case "SECTION":
 					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + value + "'),");
 					break;
-				case "SPECIALIZATION":
+				case "NAME":
+				case "LAST_NAME":
+				case "BIRTH":
+				case "ADMISSION":
 					query.append(attribute + "='" + value + "',");
 					break;
 				case "SALARY":
@@ -113,13 +109,11 @@ public class CoachesHelper implements QueryHelper{
 			switch(attribute){
 				case "NAME":
 				case "LAST_NAME":
-				case "SEX":
 				case "BIRTH":
-				case "TYPE":
-				case "SPECIALIZATION":
+				case "ADMISSION":
+				case "SECTION":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
-				case "CATEGORY":
 				case "SALARY":
 					query.append(attribute + "=" + value + " AND ");
 					break;
@@ -131,35 +125,20 @@ public class CoachesHelper implements QueryHelper{
 	
 	@Override
 	public String getDeletingQuery(Map<String, String> params){
-		if(params == null || params.size() < 2){
+		if(params == null || params.size() == 0){
 			return null;
 		}
 		StringBuilder query = new StringBuilder(
-		"DELETE FROM COACHES WHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
-		params.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "NAME":
-				case "LAST_NAME":
-				case "SEX":
-				case "BIRTH":
-				case "TYPE":
-					query.append(attribute + "='" + value + "' AND ");
-					break;
-				case "CATEGORY":
-					query.append(attribute + "=" + value + " AND ");
-					break;
-			}
-		});
-		if(params.length() <= ("DELETE FROM COACHES WHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ").length()){
-			return null;
-		}
-		params.setCharAt(params.length() - (" AND ").length(), ")");
+		"DELETE FROM DIRECTORS WHERE ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "SECTION":
 					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + value + "') AND ");
 					break;
-				case "SPECIALIZATION":
+				case "NAME":
+				case "LAST_NAME":
+				case "BIRTH":
+				case "ADMISSION":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "SALARY":
@@ -172,7 +151,7 @@ public class CoachesHelper implements QueryHelper{
 	
 	@Override
 	public String getColumns(){
-		return "NAME;LAST_NAME;SEX;BIRTH;CATEGORY;SPECIALIZATION;SECTION;SALARY";
+		return "NAME;LAST_NAME;BIRTH;ADMISSION;SALARY;SECTION";
 	}
 	
 	private String scanFile(String fileName){
@@ -193,5 +172,5 @@ public class CoachesHelper implements QueryHelper{
 		return text.toString();
 	}
 	
-	private String SELECT_FILE = "SQL_select_coaches.txt";
+	private String SELECT_FILE = "SQL_select_directors.txt";
 }
