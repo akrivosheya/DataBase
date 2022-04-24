@@ -2,8 +2,27 @@ package tourists;
 
 import java.sql.*;
 import java.util.*;
+import java.io.*;
 
 public class ConnecterDataBase{
+	public ConnecterDataBase(String fileWithErrorsAndMessages){
+		if(fileWithErrorsAndMessages == null){
+			throw new NullPointerException("Can't create ConnecterDataBase: fileWithErrorsAndMessages is null");
+		}
+		File file = new File(fileWithErrorsAndMessages);
+		if(!file.exists()){
+			System.err.println("Can't configure properties: file " + fileWithErrorsAndMessages + " doesn't exist");
+		}
+		else{
+			try{
+				properties.load(new FileInputStream(file));
+			}
+			catch(IOException e){
+				System.err.println("Can't configure properties: " + e.getMessage());
+			}
+		}
+	}
+	
 	public boolean connect(String user, String password, String database, StringBuilder result){
 		String currentDatabase;
 		if(database.length() == 0){
@@ -13,8 +32,10 @@ public class ConnecterDataBase{
 			currentDatabase = database;
 		}
 		try{
-			//connection = DriverManager.getConnection("jdbc:oracle:thin:" + user + "/" + password + "@" + currentDatabase);
-			connection = DriverManager.getConnection("jdbc:oracle:thin:" + "19212_krivosheya" + "/" + "362917458boom" + "@" + currentDatabase);
+			//connection = DriverManager.getConnection("jdbc:oracle:thin:" + 
+			//	user + "/" + password + "@" + currentDatabase);
+			connection = DriverManager.getConnection("jdbc:oracle:thin:" + 
+				"19212_krivosheya" + "/" + "362917458boom" + "@" + currentDatabase);
 			connection.setAutoCommit(false);
 			return true;
 		}
@@ -44,9 +65,9 @@ public class ConnecterDataBase{
 					connection.rollback();
 				}
 				catch(SQLException ee){
-					return "FATAL ERROR. DATABASE IS IN UNDEPENDENT STATE:\n" + ee.getMessage();
+					return "FATAL ERROR. DATABASE IS IN UNDEPENDENT STATE:\n" + getMessageForError(ee.getErrorCode());
 				}
-				return "Can't execute command:\n" + e.getMessage();
+				return "Can't execute command:\n" + getMessageForError(e.getErrorCode()) + "\n" + e.getMessage();
 			}
 		}
 		try{
@@ -57,9 +78,9 @@ public class ConnecterDataBase{
 				connection.rollback();
 			}
 			catch(SQLException ee){
-				return "Can't commit changes and rollback them:\n" + ee.getMessage();
+				return "Can't commit changes and rollback them:\n" + getMessageForError(ee.getErrorCode());
 			}
-			return "Can't commit changes:\n" + e.getMessage();
+			return "Can't commit changes:\n" + getMessageForError(e.getErrorCode());
 		}
 		return "Successful operation";
 	}
@@ -96,7 +117,7 @@ public class ConnecterDataBase{
 			}
 		}
 		catch(SQLException e){
-			System.err.println("Can't execute command:\n" + e.getMessage());
+			System.err.println("Can't execute command:\n" + getMessageForError(e.getErrorCode()));
 			return null;
 		}
 		return rows;
@@ -113,9 +134,14 @@ public class ConnecterDataBase{
 		}
 	}
 	
+	private String getMessageForError(int error){
+		return properties.getProperty(String.valueOf(error), "Unknow error: " + error);
+	}
+	
 	private String DEFAULT_DATABASE = "84.237.50.81:1521";
 	private int ERROR_CODE_NOT_EXIST = 942;
 	private int ERROR_CODE_ALREADY_EXIST = 955;
 	
 	private Connection connection = null;
+	private Properties properties = new Properties();
 }

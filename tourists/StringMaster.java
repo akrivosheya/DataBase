@@ -15,11 +15,26 @@ public class StringMaster{
 		while(iteratorField.hasNext() && iteratorText.hasNext()){
 			TextField field = iteratorField.next();
 			Text text = iteratorText.next();
-			if(field == null || text == null){
-				return null;
-			}
 			if(field.getText().length() > 0){
 				strings.put(text.getText(), field.getText());
+			}
+		}
+		return strings;
+	}
+	
+	public static Map<String, String> getMapFormTextsAndDropdowns(List<Text> texts, List<ComboBox<String>> dropdowns){
+		if(dropdowns == null || texts == null){
+			return null;
+		}
+		Iterator<ComboBox<String>> iteratorDropdown = dropdowns.iterator();
+		Iterator<Text> iteratorText = texts.iterator();
+		Map<String, String> strings = new HashMap<String, String>();
+		while(iteratorDropdown.hasNext() && iteratorText.hasNext()){
+			ComboBox<String> dropdown = iteratorDropdown.next();
+			Text text = iteratorText.next();
+			String dropDownValue = dropdown.getSelectionModel().getSelectedItem();
+			if(dropDownValue != null){
+				strings.put(text.getText(), dropDownValue);
 			}
 		}
 		return strings;
@@ -35,9 +50,6 @@ public class StringMaster{
 		while(iteratorField.hasNext() && iteratorText.hasNext()){
 			String field = iteratorField.next();
 			String text = iteratorText.next();
-			if(field == null || text == null){
-				return null;
-			}
 			if(field.length() > 0){
 				strings.put(text, field);
 			}
@@ -53,9 +65,6 @@ public class StringMaster{
 		List<String> choosenFlags = new ArrayList<String>();
 		while(iterator.hasNext()){
 			CheckBox flag = iterator.next();
-			if(flag == null){
-				return null;
-			}
 			if(flag.isSelected()){
 				choosenFlags.add(flag.getText());
 			}

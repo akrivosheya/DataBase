@@ -12,6 +12,10 @@ import java.util.*;
 import tourists.helpers.*;
 
 class Controller{
+	public Controller(){
+		connecter = new ConnecterDataBase(FILE_WITH_ERROR_CODES_AND_MESSAGES);
+	}
+	
 	public Map<String, Group> getGroups(TableView<TableData> table){
 		MenuLoader loader = new MenuLoader();
 		Map<String, MenuData> menuesData = new HashMap<String, MenuData>();
@@ -24,15 +28,20 @@ class Controller{
 			List<Text> texts = new ArrayList<Text>();
 			List<Text> textFields = new ArrayList<Text>();
 			List<TextField> fields = new ArrayList<TextField>();
+			List<Text> textDropdowns = new ArrayList<Text>();
+			List<ComboBox<String>> dropdowns = new ArrayList<ComboBox<String>>();
 			List<CheckBox> flags = new ArrayList<CheckBox>();
 			List<Button> buttons = new ArrayList<Button>();
 			configurator.createTexts(menuData.getTexts(), texts);
 			configurator.createTextsWithFields(menuData.getFields(), textFields, fields);
+			configurator.createTextsWithDropdowns(menuData.getDropdowns(), textDropdowns, dropdowns);
 			configurator.createFlags(menuData.getFlags(), flags);
 			MenuElements elements = new MenuElements();
 			elements.setHasTable(menuData.hasTable());
 			elements.setTexts(texts);
 			elements.setTextsWithFields(textFields);
+			elements.setTextsWithDropdowns(textDropdowns);
+			elements.setDropdowns(dropdowns);
 			elements.setFields(fields);
 			elements.setFlags(flags);
 			Iterator<ButtonData> iteratorButtonData = menuData.getButtons().iterator();
@@ -110,9 +119,10 @@ class Controller{
 	private double SCENE_HEIGHT = 600;
 	private double SCENE_WIDTH = 700;
 	private String MENUES_FILE = "tourists/menues.xml";
+	private String FILE_WITH_ERROR_CODES_AND_MESSAGES = "tourists/errors.txt";
 	
 	private QueryMaster queryMaster = new QueryMaster();
-	private ConnecterDataBase connecter = new ConnecterDataBase();
+	private ConnecterDataBase connecter;
 	private WindowOpener windowOpener = WindowOpener.getInstance();
 	private ElementsConfigurator configurator = ElementsConfigurator.getInstance();
 }

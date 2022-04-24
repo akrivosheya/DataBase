@@ -213,7 +213,6 @@
 		<fields>
 			<field>Section</field>
 			<field>Group</field>
-			<field>Sex</field>
 			<field>Birth</field>
 			<field>Age</field>
 			<field>Hike</field>
@@ -223,6 +222,15 @@
 			<field>Category</field>
 			<field>Can go to hike</field>
 		</fields>
+		<dropdowns>
+			<dropdown>
+				<mainText>Sex</mainText>
+				<texts>
+					<text>M</text>
+					<text>W</text>
+				</texts>
+			</dropdown>
+		</dropdowns>
 		<flags>
 			<flag>All routes</flag>
 			<flag>Is sportsman</flag>
@@ -233,6 +241,41 @@
 				<text>Find</text>
 				<helper>tourists.helpers.ButtonSelecter</helper>
 				<param>tourists.helpers.TouristsHelper</param>
+			</button>
+			<button>
+				<text>Back</text>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
+				<param>select</param>
+			</button>
+		</buttons>
+	</menu>
+	<menu>
+		<name>select_coaches</name>
+		<texts>
+			<text>Choose tourists filter</text>
+		</texts>
+		<fields>
+			<field>Section</field>
+			<field>Age</field>
+			<field>Salary</field>
+			<field>Specialization</field>
+			<field>Group</field>
+			<field>Training time</field>
+		</fields>
+		<dropdowns>
+			<dropdown>
+				<mainText>Sex</mainText>
+				<texts>
+					<text>M</text>
+					<text>W</text>
+				</texts>
+			</dropdown>
+		</dropdowns>
+		<buttons>
+			<button>
+				<text>Find</text>
+				<helper>tourists.helpers.ButtonSelecter</helper>
+				<param>tourists.helpers.CoachesHelper</param>
 			</button>
 			<button>
 				<text>Back</text>

@@ -19,67 +19,89 @@ public class ElementsConfigurator{
 	}
 	
 	public void createTexts(List<String> strings, List<Text> texts){
-		if(strings == null || texts == null){
-			System.err.println("Null arguments for createTexts");
-			return;
+		if(strings == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.createTexts: strings is null");
+		}
+		if(texts == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.createTexts: texts is null");
 		}
 		Iterator<String> iterator = strings.iterator();
 		while(iterator.hasNext()){
 			String text = iterator.next();
-			if(text == null){
-				System.err.println("createTexts got one null string");
-				continue;
-			}
 			texts.add(new Text(text));
 		}
 	}
 	
 	public void createFlags(List<String> strings, List<CheckBox> flags){
-		if(strings == null || flags == null){
-			System.err.println("Null arguments for createFlags");
-			return;
+		if(strings == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.createFlags: strings is null");
+		}
+		if(flags == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.createFlags: flags is null");
 		}
 		Iterator<String> iterator = strings.iterator();
 		while(iterator.hasNext()){
 			String text = iterator.next();
-			if(text == null){
-				System.err.println("createFlags got one null string");
-				continue;
-			}
 			flags.add(new CheckBox(text));
 		}
 	}
 	
 	public void setTextToFields(List<String> texts, List<TextField> fields){
-		if(texts == null || fields == null){
-			System.err.println("Null arguments for WindowOpener.setTextToFields");
-			return;
+		if(texts == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.setTextToFields: texts is null");
+		}
+		if(texts == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.setTextToFields: texts is null");
 		}
 		Iterator<String> iteratorText = texts.iterator();
 		Iterator<TextField> iteratorField = fields.iterator();
 		while(iteratorText.hasNext() && iteratorField.hasNext()){
 			String text = iteratorText.next();
 			TextField field = iteratorField.next();
-			if(text != null){
-				field.setText(text);
-			}
+			field.setText(text);
 		}
 	}
 	
 	public void createTextsWithFields(List<String> strings, List<Text> texts, List<TextField> fields){
-		if(strings == null || texts == null || fields == null){
-			System.err.println("Null arguments for createTextFields");
-			return;
+		if(strings == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.createTextsWithFields: strings is null");
+		}
+		if(texts == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.createTextsWithFields: texts is null");
+		}
+		if(fields == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.createTextsWithFields: dropdowns is null");
 		}
 		Iterator<String> iterator = strings.iterator();
 		while(iterator.hasNext()){
 			String text = iterator.next();
-			if(text == null){
-				System.err.println("createTextFields got one null string");
-				continue;
-			}
 			texts.add(new Text(text));
 			fields.add(new TextField());
+		}
+	}
+	
+	public void createTextsWithDropdowns(List<List<String>> strings, List<Text> texts, List<ComboBox<String>> dropdowns){
+		if(strings == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.createTextsWithDropdowns: strings is null");
+		}
+		if(texts == null){
+			throw new NullPointerException("Problem with ElementsConfigurator.createTextsWithDropdowns: texts is null");
+		}
+		if(dropdowns == null){
+			throw new NullPointerException("Problem with ElementsConfigurato.createTextsWithDropdowns: dropdowns is null");
+		}
+		Iterator<List<String>> iteratorDropdownData = strings.iterator();
+		List<String> dropdownData;
+		while(iteratorDropdownData.hasNext()){
+			dropdownData = iteratorDropdownData.next();
+			if(dropdownData.size() < MIN_ELEMENTS_IN_DROPDOWN){
+				throw new RuntimeException("Problem with ElementsConfigurato.createTextsWithDropdowns: dropdown doesn't have elements");
+			}
+			Iterator<String> iteratorText = dropdownData.iterator();
+			texts.add(new Text(iteratorText.next()));
+			ComboBox<String> dropdown = new ComboBox<String>();
+			configureDropdown(dropdown, iteratorText);
+			dropdowns.add(dropdown);
 		}
 	}
 	
@@ -100,7 +122,7 @@ public class ElementsConfigurator{
 			return false;
 		}
 		List<String> values = connecter.executeQuery(query, StringMaster.arrayStringsToList(columns.split(DELIM)));
-		if(values == null || !result.addAll(values)){
+		if(values == null || (!result.addAll(values) && values.size() != 0)){
 			System.err.println("Can't get result of select command");
 			return false;
 		}
@@ -115,9 +137,6 @@ public class ElementsConfigurator{
 		List<TableData> rows = new ArrayList<TableData>();
 		while(iterator.hasNext()){
 			String value = iterator.next();
-			if(value == null){
-				throw new NullPointerException("Null arguments for sendSelectingResult");
-			}
 			String[] valuesArray = value.split(DELIM);
 			TableData data = new TableData(valuesArray.length);
 			for(int i = 0; i < valuesArray.length; ++i){
@@ -155,6 +174,7 @@ public class ElementsConfigurator{
 		ConfigurationParams params = new ConfigurationParams(countElementsInColumn, currentY, currentX, stepX, stepY);
 		configureTexts(elements.getTexts(), group, params);
 		configureTextsWithFields(elements.getTextsWithFields(), elements.getFields(), group, params);
+		configureTextsWithDropdowns(elements.getTextsWithDropdowns(), elements.getDropdowns(), group, params);
 		configureFlags(elements.getFlags(), group, params);
 		configureButtons(elements.getButtons(), group, params);
 	}
@@ -180,6 +200,38 @@ public class ElementsConfigurator{
 		}
 	}
 	
+	private void configureDropdown(ComboBox<String> dropdown, Iterator<String> iteratorText){
+		if(dropdown == null){
+			throw new NullPointerException("Problem in ElementsConfigurator.configureDropdown: dropdown is null");
+		}
+		if(iteratorText == null){
+			throw new NullPointerException("Problem in ElementsConfigurator.configureDropdown: iteratorText is null");
+		}
+		while(iteratorText.hasNext()){
+			dropdown.getItems().add(iteratorText.next());
+		}
+		dropdown.setCellFactory(p -> {
+			return new ListCell<>() {
+				private final Text text;
+				{
+					setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+					text = new Text();
+				}
+
+				@Override protected void updateItem(String item, boolean empty) {
+					super.updateItem(item, empty);
+					if(item == null || empty){ 
+						setGraphic(null);
+					}
+					else{
+						text.setText(item);
+						setGraphic(text);
+					}
+				}
+			};
+		});
+	}
+	
 	private void configureTextsWithFields(List<Text> texts, List<TextField> fields, Group group, ConfigurationParams params){
 		if(group == null){
 			throw new NullPointerException("Can't execute ElementsConfigurator.configureTextsWithFields: group is null");
@@ -199,6 +251,31 @@ public class ElementsConfigurator{
 				text.setY(params.getCurrentY());
 				params.incrementCurrentY();
 				group.getChildren().add(textField);
+				group.getChildren().add(text);
+				params.incrementElements();
+			}
+		}
+	}
+	
+	private void configureTextsWithDropdowns(List<Text> texts, List<ComboBox<String>> dropdowns, Group group, ConfigurationParams params){
+		if(group == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureTextsWithFields: group is null");
+		}
+		if(params == null){
+			throw new NullPointerException("Can't execute ElementsConfigurator.configureTextsWithFields: params are null");
+		}
+		if(texts != null && dropdowns != null){
+			Iterator<Text> iterTextDropdown = texts.iterator();
+			Iterator<ComboBox<String>> iterDropdown = dropdowns.iterator();
+			while(iterTextDropdown.hasNext() && iterDropdown.hasNext()){
+				ComboBox<String> dropdown = iterDropdown.next();
+				dropdown.setTranslateX(params.getCurrentX() + params.getStepX() / 2);
+				dropdown.setTranslateY(params.getCurrentY());
+				Text text = iterTextDropdown.next();
+				text.setX(params.getCurrentX() + LEFT_LIMIT_X);
+				text.setY(params.getCurrentY());
+				params.incrementCurrentY();
+				group.getChildren().add(dropdown);
 				group.getChildren().add(text);
 				params.incrementElements();
 			}
@@ -312,6 +389,7 @@ public class ElementsConfigurator{
 	private double LEFT_LIMIT_X = 20;
 	private double ELEMENT_SIZE = 15;
 	private int COLUMNS_FOR_TABLE = 2;
+	private int MIN_ELEMENTS_IN_DROPDOWN = 2;
 	
 	private String DELIM = ";";
 	private static ElementsConfigurator instance;

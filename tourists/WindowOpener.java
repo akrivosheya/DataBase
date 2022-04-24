@@ -123,7 +123,11 @@ public class WindowOpener{
 		window.setMinWidth(width + OUTLINE_WIDTH);
 		window.setMaxHeight(height + TITLE_HEIGHT);
 		window.setMinHeight(height + TITLE_HEIGHT);
-		window.initModality(Modality.APPLICATION_MODAL);
+		try{
+			window.initModality(Modality.APPLICATION_MODAL);
+		}
+		catch(Exception e){
+		}
 		window.show();
 	}
 	

@@ -94,11 +94,19 @@ class MenuLoader{
 		List<String> fields = new ArrayList<String>();
 		List<String> flags = new ArrayList<String>();
 		List<ButtonData> buttons = new ArrayList<ButtonData>();
+		List<List<String>> dropdowns = new ArrayList<List<String>>();
 		if(!getTexts(reader, texts, "texts", "text")){
 			return false;
 		}
 		if(!getTexts(reader, fields, "fields", "field")){
 			return false;
+		}
+		if(reader.getEventType() == XMLStreamConstants.START_ELEMENT && 
+		reader.getName().toString().equals("dropdowns")){
+			if(!(getDropdowns(reader, dropdowns) && reader.getEventType() == XMLStreamConstants.END_ELEMENT && 
+			reader.getName().toString().equals("dropdowns") && doubleNext(reader))){
+				return false;
+			}
 		}
 		if(!getTexts(reader, flags, "flags", "flag")){
 			return false;
@@ -119,6 +127,7 @@ class MenuLoader{
 		}
 		menuData.setTexts(List.copyOf(texts));
 		menuData.setFields(List.copyOf(fields));
+		menuData.setDropdowns(List.copyOf(dropdowns));
 		menuData.setFlags(List.copyOf(flags));
 		menuData.setButtons(List.copyOf(buttons));
 		return true;
@@ -180,9 +189,11 @@ class MenuLoader{
 	}
 	
 	private boolean getButtons(XMLStreamReader reader, List<ButtonData> buttons) throws XMLStreamException{
-		if(reader == null || buttons == null){
-			System.err.println("Null arguments for getButtons");
-			return false;
+		if(reader == null){
+			throw new NullPointerException("Can't execute MenuLoader.getButtons: reader is null");
+		}
+		if(buttons == null){
+			throw new NullPointerException("Can't execute MenuLoader.getButtons: buttons is null");
 		}
 		if(!doubleNext(reader)){
 			return false;
@@ -217,6 +228,50 @@ class MenuLoader{
 			param.delete(0, param.length());
 			if(!(reader.getEventType() == XMLStreamConstants.END_ELEMENT && 
 			reader.getName().toString().equals("button"))){
+				return false;
+			}
+			if(!doubleNext(reader)){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean getDropdowns(XMLStreamReader reader, List<List<String>> dropdowns) throws XMLStreamException{
+		if(reader == null){
+			throw new NullPointerException("Can't execute MenuLoader.getDropDowns: reader is null");
+		}
+		if(dropdowns == null){
+			throw new NullPointerException("Can't execute MenuLoader.getDropDowns: dropdowns is null");
+		}
+		if(!doubleNext(reader)){
+			return false;
+		}
+		StringBuilder mainText = new StringBuilder("");
+		while(reader.getEventType() == XMLStreamConstants.START_ELEMENT && 
+		reader.getName().toString().equals("dropdown")){
+			if(!doubleNext(reader)){
+				return false;
+			}
+			if(reader.getEventType() == XMLStreamConstants.START_ELEMENT &&
+			reader.getName().toString().equals("mainText")){
+				if(!getText(reader, "mainText", mainText)){
+					return false;
+				}
+			}
+			List<String> texts = new ArrayList<String>();
+			texts.add(mainText.toString());
+			if(!getTexts(reader, texts, "texts", "text")){
+				return false;
+			}
+			if(texts.size() < MIN_ELEMENTS_IN_DROPDOWN){
+				System.err.println("Elements in " + mainText.toString() + " is less than " + MIN_ELEMENTS_IN_DROPDOWN);
+				return false;
+			}
+			dropdowns.add(texts);
+			mainText.delete(0, mainText.length());
+			if(!(reader.getEventType() == XMLStreamConstants.END_ELEMENT && 
+			reader.getName().toString().equals("dropdown"))){
 				return false;
 			}
 			if(!doubleNext(reader)){
@@ -268,4 +323,6 @@ class MenuLoader{
 		}
 		return true;
 	}
+	
+	private int MIN_ELEMENTS_IN_DROPDOWN = 2;
 }

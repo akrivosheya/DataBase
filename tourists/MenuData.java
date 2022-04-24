@@ -11,7 +11,7 @@ class MenuData{
 	
 	@Override
 	public String toString(){
-		return name + "\nTexts: " + texts + "\nFields: " + fields + "\nFlags: " + flags + "\nButtons: " + buttons;
+		return name + "\nTexts: " + texts + "\nFields: " + fields + "\nDropdowns: " + dropdowns + "\nFlags: " + flags + "\nButtons: " + buttons;
 	}
 	
 	public String getName(){
@@ -24,6 +24,10 @@ class MenuData{
 	
 	public List<String> getFields(){
 		return fields;
+	}
+	
+	public List<List<String>> getDropdowns(){
+		return dropdowns;
 	}
 	
 	public List<String> getFlags(){
@@ -40,6 +44,10 @@ class MenuData{
 	
 	public void setFields(List<String> fields){
 		this.fields = fields;
+	}
+	
+	public void setDropdowns(List<List<String>> dropdowns){
+		this.dropdowns = dropdowns;
 	}
 	
 	public void setFlags(List<String> flags){
@@ -63,6 +71,7 @@ class MenuData{
 	private String name;
 	private List<String> texts;
 	private List<String> fields;
+	private List<List<String>> dropdowns;
 	private List<String> flags;
 	private List<ButtonData> buttons;
 }

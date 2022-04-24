@@ -43,22 +43,22 @@ public class TouristsHelper implements QueryHelper{
 								query.append("TOURISTS.BIRTH='" + value + "' AND\n");
 								break;
 							case "Hike":
-								query.append("HIKE.ID=" + value + " AND\n");
+								query.append("HIKE.NAME='" + value + "' AND\n");
 								break;
 							case "Hike count":
-								//query.append("(SELECT COUNT(*) FROM HIKE, WENT_TO_HIKE, TOURISTS WHERE HIKE.ID=");
+								query.append("TOURISTS_HIKES_COUNT.COUNT=" + value + " AND\n");
 								break;
 							case "Route":
-								//query.append("(SELECT COUNT(*) FROM HIKE, WENT_TO_HIKE, TOURISTS WHERE HIKE.ID=");
+								query.append("ROUTE.NAME='" + value + "' AND\n");
 								break;
 							case "Point":
-								//query.append("(SELECT COUNT(*) FROM HIKE, WENT_TO_HIKE, TOURISTS WHERE HIKE.ID=");
+								query.append("PLACE.NAME='" + value + "' AND\n");
 								break;
 							case "Category":
-								//query.append("(SELECT COUNT(*) FROM HIKE, WENT_TO_HIKE, TOURISTS WHERE HIKE.ID=");
+								query.append("TOURISTS.CATEGORY=" + value + " AND\n");
 								break;
 							case "Can go to hike":
-								//query.append("(SELECT COUNT(*) FROM HIKE, WENT_TO_HIKE, TOURISTS WHERE HIKE.ID=");
+								getConditionToHikeRequirement(query, value);
 								break;
 						}
 					}
@@ -73,11 +73,14 @@ public class TouristsHelper implements QueryHelper{
 					}
 					switch(flag){
 						case "All routes":
-							//query.append("SECTIONS.ID=");
+							query.append("TOURISTS_ROUTES_COUNT.COUNT = (SELECT COUNT(*) FROM ROUTE)");
+							break;
 						case "Is sportsman":
 							query.append("TOURISTS.TYPE='SPORTSMAN'");
+							break;
 						case "Instructor is coach":
-							//query.append("TOURISTS.SEX=");
+							query.append("TRAINS.COACH = CONDUCTED_HIKE.INSTRUCTOR");
+							break;
 					}
 					query.append(" AND\n");
 				}
@@ -209,6 +212,21 @@ public class TouristsHelper implements QueryHelper{
 			return null;
 		}
 		return text.toString();
+	}
+	
+	private String getConditionToHikeRequirement(StringBuilder query, String value){
+		if(value == null){
+			throw new NullPointerException("Problem in TouristsHelper.getConditionToHikeRequirement: value is null");
+		}
+		if(query == null){
+			throw new NullPointerException("Problem in TouristsHelper.getConditionToHikeRequirement: query is null");
+		}
+		query.append("(SECTIONS.NAME=(SELECT HIKE.REQUIREMENT FROM HIKE WHERE HIKE.NAME='");
+		query.append(value);
+		query.append("')OR(SELECT HIKE.REQUIREMENT FROM HIKE WHERE HIKE.NAME='");
+		query.append(value);
+		query.append("') IS NULL) AND\n");
+		return query.toString();
 	}
 	
 	private int columnsSize = 7;
