@@ -93,9 +93,11 @@ public class CompetitionsHelper implements QueryHelper{
 				case "NAME":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
+			}
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
 		query.append(")");
+		return query.toString();
 	}
 	
 	@Override

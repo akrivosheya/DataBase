@@ -121,6 +121,7 @@ public class DirectorsHelper implements QueryHelper{
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
 		query.append(")");
+		return query.toString();
 	}
 	
 	@Override

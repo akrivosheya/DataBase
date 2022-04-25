@@ -116,11 +116,7 @@ public class TouristsHelper implements QueryHelper{
 		if(values.containsKey("CATEGORY")){
 			query.append(values.get("CATEGORY"));
 		}
-		query.append(",");
-		if(values.containsKey("TYPE")){
-			query.append("'" + values.get("TYPE") + "'");
-		}
-		query.append(")");
+		query.append(",AMATEUR)");
 		return query.toString();
 	}
 	
@@ -136,7 +132,6 @@ public class TouristsHelper implements QueryHelper{
 				case "LAST_NAME":
 				case "SEX":
 				case "BIRTH":
-				case "TYPE":
 					query.append(attribute + "='" + value + "',");
 					break;
 				case "CATEGORY":
@@ -152,7 +147,6 @@ public class TouristsHelper implements QueryHelper{
 				case "LAST_NAME":
 				case "SEX":
 				case "BIRTH":
-				case "TYPE":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "CATEGORY":
@@ -175,7 +169,6 @@ public class TouristsHelper implements QueryHelper{
 				case "LAST_NAME":
 				case "SEX":
 				case "BIRTH":
-				case "TYPE":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "CATEGORY":
@@ -188,7 +181,7 @@ public class TouristsHelper implements QueryHelper{
 	
 	@Override
 	public String getColumns(){
-		return "NAME;LAST_NAME;SEX;BIRTH;CATEGORY;TYPE";
+		return "NAME;LAST_NAME;SEX;BIRTH;CATEGORY";
 	}
 	
 	private String scanFile(String fileName){

@@ -72,7 +72,22 @@ public class CoachesHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO COACHES VALUES(");
-		query.append("1,");
+		query.append("(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
+		values.forEach((String attribute, String value)->{
+			switch(attribute){
+				case "NAME":
+				case "LAST_NAME":
+				case "SEX":
+				case "BIRTH":
+					query.append(attribute + "='" + value + "' AND ");
+					break;
+				case "CATEGORY":
+					query.append(attribute + "=" + value + " AND ");
+					break;
+			}
+		});
+		query.delete(query.length() - " AND ".length(), query.length());
+		query.append("),");
 		if(values.containsKey("SPECIALIZATION")){
 			query.append("'" + values.get("SPECIALIZATION") + "'");
 		}
@@ -115,18 +130,16 @@ public class CoachesHelper implements QueryHelper{
 				case "LAST_NAME":
 				case "SEX":
 				case "BIRTH":
-				case "TYPE":
-				case "SPECIALIZATION":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "CATEGORY":
-				case "SALARY":
 					query.append(attribute + "=" + value + " AND ");
 					break;
 			}
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
 		query.append(")");
+		return query.toString();
 	}
 	
 	@Override
@@ -142,7 +155,6 @@ public class CoachesHelper implements QueryHelper{
 				case "LAST_NAME":
 				case "SEX":
 				case "BIRTH":
-				case "TYPE":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "CATEGORY":
@@ -150,23 +162,10 @@ public class CoachesHelper implements QueryHelper{
 					break;
 			}
 		});
-		if(params.length() <= ("DELETE FROM COACHES WHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ").length()){
+		if(query.length() <= ("DELETE FROM COACHES WHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ").length()){
 			return null;
 		}
-		params.setCharAt(params.length() - (" AND ").length(), ")");
-		params.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "SECTION":
-					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + value + "') AND ");
-					break;
-				case "SPECIALIZATION":
-					query.append(attribute + "='" + value + "' AND ");
-					break;
-				case "SALARY":
-					query.append(attribute + "=" + value + " AND ");
-					break;
-			}
-		});
+		query.setCharAt(query.length() - (" AND ").length(), ')');
 		return query.substring(0, query.length() - " AND ".length());
 	}
 	

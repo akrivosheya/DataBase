@@ -312,6 +312,35 @@
 		</buttons>
 	</menu>
 	<menu>
+		<name>select_coaches_time</name>
+		<texts>
+			<text>Choose coaches time filter</text>
+		</texts>
+		<fields>
+			<field>Name</field>
+			<field>Last name</field>
+			<field>Birth</field>
+			<field>Section</field>
+			<field>Training</field>
+			<field>Trains after hour</field>
+			<field>Trains before hour</field>
+			<field>Trains after day</field>
+			<field>Trains before day</field>
+		</fields>
+		<buttons>
+			<button>
+				<text>Find</text>
+				<helper>tourists.helpers.ButtonSelecter</helper>
+				<param>tourists.helpers.CoachesTimeHelper</param>
+			</button>
+			<button>
+				<text>Back</text>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
+				<param>select</param>
+			</button>
+		</buttons>
+	</menu>
+	<menu>
 		<name>select_competitions</name>
 		<texts>
 			<text>Choose competitions filter</text>
@@ -327,6 +356,65 @@
 				<text>Find</text>
 				<helper>tourists.helpers.ButtonSelecter</helper>
 				<param>tourists.helpers.CompetitionsHelper</param>
+			</button>
+			<button>
+				<text>Back</text>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
+				<param>select</param>
+			</button>
+		</buttons>
+	</menu>
+	<menu>
+		<name>select_routes</name>
+		<texts>
+			<text>Choose routes filter</text>
+		</texts>
+		<fields>
+			<field>Section</field>
+			<field>After day</field>
+			<field>Before day</field>
+			<field>Instructor name</field>
+			<field>Instructor last name</field>
+			<field>Instructor birth</field>
+			<field>Groups count</field>
+			<field>Contain point</field>
+			<field>Has length more than</field>
+			<field>Min category</field>
+		</fields>
+		<buttons>
+			<button>
+				<text>Find</text>
+				<helper>tourists.helpers.ButtonSelecter</helper>
+				<param>tourists.helpers.RoutesHelper</param>
+			</button>
+			<button>
+				<text>Back</text>
+				<helper>tourists.helpers.ButtonMenuChanger</helper>
+				<param>select</param>
+			</button>
+		</buttons>
+	</menu>
+	<menu>
+		<name>select_instructors</name>
+		<texts>
+			<text>Choose instructors filter</text>
+		</texts>
+		<fields>
+			<field>Category</field>
+			<field>Hike</field>
+			<field>Hikes count</field>
+			<field>Route</field>
+			<field>Point</field>
+		</fields>
+		<flags>
+			<flag>Is sportsman</flag>
+			<flag>Is coach</flag>
+		</flags>
+		<buttons>
+			<button>
+				<text>Find</text>
+				<helper>tourists.helpers.ButtonSelecter</helper>
+				<param>tourists.helpers.RoutesHelper</param>
 			</button>
 			<button>
 				<text>Back</text>
