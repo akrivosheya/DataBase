@@ -33,7 +33,12 @@ public class TouristsHelper implements QueryHelper{
 								query.append("SPORTSMEN.GROUP_ID=" + value + " AND\n");
 								break;
 							case "Sex":
-								query.append("TOURISTS.SEX='" + value + "' AND\n");
+								if(!value.isBlank()){
+									query.append("TOURISTS.SEX='" + value + "' AND\n");
+								}
+								else{
+									query.append("(TOURISTS.SEX='M' OR TOURISTS.SEX='W') AND\n");
+								}
 								break;
 							case "Age":
 								int year = Calendar.getInstance().get(Calendar.YEAR);
@@ -45,7 +50,7 @@ public class TouristsHelper implements QueryHelper{
 							case "Hike":
 								query.append("HIKE.NAME='" + value + "' AND\n");
 								break;
-							case "Hike count":
+							case "Hikes count":
 								query.append("TOURISTS_HIKES_COUNT.COUNT=" + value + " AND\n");
 								break;
 							case "Route":
@@ -116,7 +121,7 @@ public class TouristsHelper implements QueryHelper{
 		if(values.containsKey("CATEGORY")){
 			query.append(values.get("CATEGORY"));
 		}
-		query.append(",AMATEUR)");
+		query.append(",'AMATEUR')");
 		return query.toString();
 	}
 	
@@ -209,11 +214,15 @@ public class TouristsHelper implements QueryHelper{
 		if(query == null){
 			throw new NullPointerException("Problem in TouristsHelper.getConditionToHikeRequirement: query is null");
 		}
-		query.append("(SECTIONS.NAME=(SELECT HIKE.REQUIREMENT FROM HIKE WHERE HIKE.NAME='");
+		query.append("((SECTIONS.NAME=(SELECT HIKE.REQUIREMENT FROM HIKE WHERE HIKE.NAME='");
 		query.append(value);
-		query.append("')OR(SELECT HIKE.REQUIREMENT FROM HIKE WHERE HIKE.NAME='");
+		query.append("')AND(SELECT COUNT(HIKE.ID) FROM HIKE WHERE HIKE.NAME='");
 		query.append(value);
-		query.append("') IS NULL) AND\n");
+		query.append("')=1)OR(((SELECT HIKE.REQUIREMENT FROM HIKE WHERE HIKE.NAME='");
+		query.append(value);
+		query.append("') IS NULL)AND(SELECT COUNT(HIKE.ID) FROM HIKE WHERE HIKE.NAME='");
+		query.append(value);
+		query.append("')=1)) AND\n");
 		return query.toString();
 	}
 	

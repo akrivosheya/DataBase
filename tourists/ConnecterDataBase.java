@@ -58,7 +58,7 @@ public class ConnecterDataBase{
 			}
 			catch(SQLException e){
 				int errorCode = e.getErrorCode();
-				if(errorCode == ERROR_CODE_ALREADY_EXIST || errorCode == ERROR_CODE_NOT_EXIST){
+				if(errorCode == ERROR_CODE_ALREADY_EXIST || errorCode == ERROR_CODE_NOT_EXIST || errorCode == ERROR_TRIGGER_DOES_NOT_EXISTS){
 					continue;
 				}
 				try{
@@ -67,6 +67,7 @@ public class ConnecterDataBase{
 				catch(SQLException ee){
 					return "FATAL ERROR. DATABASE IS IN UNDEPENDENT STATE:\n" + getMessageForError(ee.getErrorCode());
 				}
+				System.err.println("Query:\n" + query);
 				return "Can't execute command:\n" + getMessageForError(e.getErrorCode()) + "\n" + e.getMessage();
 			}
 		}
@@ -98,10 +99,6 @@ public class ConnecterDataBase{
 				Iterator<String> iteratorKey = keys.iterator();
 				while(iteratorKey.hasNext()){
 					String column = iteratorKey.next();
-					if(column == null){
-						System.err.println("Null key in keys in executeQuery");
-						return null;
-					}
 					row.append(resultSet.getString(column) + ";");
 					if(row.length() > " 00:00:00;".length() && 
 					row.substring(row.length() - " 00:00:00;".length(), row.length() - 1).equals(" 00:00:00")){
@@ -118,6 +115,7 @@ public class ConnecterDataBase{
 		}
 		catch(SQLException e){
 			System.err.println("Can't execute command:\n" + getMessageForError(e.getErrorCode()));
+			System.err.println("Query:\n" + query);
 			return null;
 		}
 		return rows;
@@ -141,6 +139,7 @@ public class ConnecterDataBase{
 	private String DEFAULT_DATABASE = "84.237.50.81:1521";
 	private int ERROR_CODE_NOT_EXIST = 942;
 	private int ERROR_CODE_ALREADY_EXIST = 955;
+	private int ERROR_TRIGGER_DOES_NOT_EXISTS = 4080;
 	
 	private Connection connection = null;
 	private Properties properties = new Properties();

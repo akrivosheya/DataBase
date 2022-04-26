@@ -18,12 +18,20 @@ public class WindowOpener{
 	}
 	
 	public void sendInformation(String information){
+		if(information == null){
+			throw new NullPointerException("Problem in WindowOpener.sendInformation: information is null");
+		}
+		int linesCount = information.length() / MAX_INFORMATION_LENGTH;
+		StringBuilder newInformation = new StringBuilder(information);
+		for(int i = 1; i < linesCount; ++i){
+			newInformation.insert(i * MAX_INFORMATION_LENGTH, NEW_LINE);
+		}
 		Group root = new Group();
-		Text text = new Text(0, INFORMATION_HEIGHT / 2, information);
+		Text text = new Text(0, INFORMATION_HEIGHT / 2, newInformation.toString());
 		text.setFont(Font.font("Tahoma", FontWeight.NORMAL, TEXT_SIZE));
 		root.getChildren().add(text);
 		Stage window = new Stage();
-		showWindow(window, root, INFORMATION_WIDTH, INFORMATION_HEIGHT, "Information");
+		showWindow(window, root, INFORMATION_WIDTH, INFORMATION_HEIGHT + TEXT_SIZE * linesCount, "Information");
 	}
 	
 	public void sendSelectingResult(List<String> result, TableView<TableData> table){
@@ -140,6 +148,8 @@ public class WindowOpener{
 	private double TITLE_HEIGHT = 35;
 	private double OUTLINE_WIDTH = 15;
 	private double TEXT_SIZE = 15;
+	private int MAX_INFORMATION_LENGTH = 20;
+	private char NEW_LINE = '\n';
 	private static WindowOpener instance;
 	private ElementsConfigurator configurator = ElementsConfigurator.getInstance();
 }

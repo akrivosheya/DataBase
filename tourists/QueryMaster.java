@@ -65,13 +65,6 @@ public class QueryMaster{
 		return query;
 	}
 	
-	public int getColumnsSize(){
-		if(helper == null){
-			return 0;
-		}
-		return helper.getColumnsSize();
-	}
-	
 	public String getColumns(){
 		if(helper == null){
 			return null;
