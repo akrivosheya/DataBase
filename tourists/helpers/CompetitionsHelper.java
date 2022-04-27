@@ -86,7 +86,7 @@ public class CompetitionsHelper implements QueryHelper{
 			}
 		});
 		query.deleteCharAt(query.length() - 1);
-		query.append("\nWHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
+		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "TIME":
@@ -96,7 +96,6 @@ public class CompetitionsHelper implements QueryHelper{
 			}
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
-		query.append(")");
 		return query.toString();
 	}
 	

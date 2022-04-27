@@ -57,8 +57,9 @@ public class CoachesTimeHelper implements QueryHelper{
 					}
 				});
 			}
-			return query.substring(0, query.length() - " AND\n".length());
+			query.delete(query.length() - " AND\n".length(), query.length());
 		}
+		query.append("GROUP BY TRAININGS.NAME");
 		return query.toString();
 	}
 	

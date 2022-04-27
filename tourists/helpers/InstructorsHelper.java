@@ -32,7 +32,7 @@ public class InstructorsHelper implements QueryHelper{
 							case "Hike":
 								query.append("HIKE.NAME='" + value + "' AND\n");
 								break;
-							case "Hike count":
+							case "Hikes count":
 								query.append("INSTRUCTORS_HIKES_COUNT.COUNT=" + value + " AND\n");
 								break;
 							case "Route":

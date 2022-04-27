@@ -3,7 +3,7 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
-public class SportsmenHelper implements QueryHelper{
+public class ContainsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
 		File file = new File(SELECT_FILE);
@@ -28,21 +28,13 @@ public class SportsmenHelper implements QueryHelper{
 		if(values == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("INSERT INTO SPORTSMEN VALUES(");
-		query.append("(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "NAME":
-				case "LAST_NAME":
-				case "BIRTH":
-					query.append(attribute + "='" + value + "' AND ");
-					break;
-			}
-		});
-		query.delete(query.length() - " AND ".length(), query.length());
-		query.append("),");
-		if(values.containsKey("GROUP_ID")){
-			query.append(values.get("GROUP_ID"));
+		StringBuilder query = new StringBuilder("INSERT INTO CONTAINS VALUES(");
+		if(values.containsKey("ROUTE")){
+			query.append("(SELECT ID FROM ROUTE WHERE NAME='" + values.get("ROUTE") + "')");
+		}
+		query.append(",");
+		if(values.containsKey("PLACE")){
+			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "')");
 		}
 		query.append(")");
 		return query.toString();
@@ -50,59 +42,59 @@ public class SportsmenHelper implements QueryHelper{
 	
 	@Override
 	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
-		if(values == null || fields == null || fields.size() <= 2){
+		if(values == null || fields == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("UPDATE SPORTSMEN SET ");
+		StringBuilder query = new StringBuilder("UPDATE CONTAINS SET ");
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "GROUP_ID":
-					query.append(attribute + "=" + value + ",");
+				case "ROUTE":
+					query.append(attribute + "=(SELECT ID FROM ROUTE WHERE NAME='" + value + "'),");
 					break;
-			}
-		});
-		query.deleteCharAt(query.length() - 1);
-		query.append("\nWHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
-		fields.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "NAME":
-				case "LAST_NAME":
-				case "BIRTH":
-					query.append(attribute + "='" + value + "' AND ");
+				case "PLACE":
+					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "'),");
 					break;
 			}
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
-		query.append(")");
+		query.append("\nWHERE ");
+		fields.forEach((String attribute, String value)->{
+			switch(attribute){
+				case "ROUTE":
+					query.append(attribute + "=(SELECT ID FROM ROUTE WHERE NAME='" + value + "') AND ");
+					break;
+				case "PLACE":
+					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "') AND ");
+					break;
+			}
+		});
+		query.delete(query.length() - " AND ".length(), query.length());
 		return query.toString();
 	}
 	
 	@Override
 	public String getDeletingQuery(Map<String, String> params){
-		if(params == null || params.size() < 2){
+		if(params == null || params.size() == 0){
 			return null;
 		}
-		StringBuilder query = new StringBuilder(
-		"DELETE FROM SPORTSMEN WHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
+		StringBuilder query = new StringBuilder("DELETE FROM CONTAINS WHERE ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "NAME":
-				case "LAST_NAME":
-				case "BIRTH":
-					query.append(attribute + "='" + value + "' AND ");
+				case "ROUTE":
+					query.append(attribute + "=(SELECT ID FROM ROUTE WHERE NAME='" + value + "') AND ");
+					break;
+				case "PLACE":
+					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "') AND ");
 					break;
 			}
 		});
-		if(query.length() <= ("DELETE FROM SPORTSMEN WHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ").length()){
-			return null;
-		}
-		query.setCharAt(query.length() - (" AND ").length(), ')');
-		return query.substring(0, query.length() - "AND ".length());
+		query.delete(query.length() - " AND ".length(), query.length());
+		return query.toString();
 	}
 	
 	@Override
 	public String getColumns(){
-		return "NAME;LAST_NAME;BIRTH;GROUP_ID";
+		return "ROUTE;PLACE";
 	}
 	
 	private String scanFile(String fileName){
@@ -123,5 +115,5 @@ public class SportsmenHelper implements QueryHelper{
 		return text.toString();
 	}
 	
-	private String SELECT_FILE = "SQL_select_sportsmen.txt";
+	private String SELECT_FILE = "SQL_select_contains.txt";
 }

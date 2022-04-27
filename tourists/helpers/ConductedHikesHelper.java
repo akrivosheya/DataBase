@@ -3,7 +3,7 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
-public class ParticipationHelper implements QueryHelper{
+public class ConductedHikesHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
 		File file = new File(SELECT_FILE);
@@ -28,15 +28,19 @@ public class ParticipationHelper implements QueryHelper{
 		if(values == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("INSERT INTO PARTICIPATION VALUES(");
-		if(values.containsKey("TRAINING")){
-			query.append("(SELECT ID FROM TRAININGS WHERE NAME='" + values.get("TRAINING") + "')");
+		StringBuilder query = new StringBuilder("INSERT INTO CONDUCTED_HIKE VALUES(1,");
+		if(values.containsKey("HIKE")){
+			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "')");
 		}
 		query.append(",");
-		if(values.containsKey("PARTICIPANT_NAME") && values.containsKey("PARTICIPANT_LAST_NAME") && values.containsKey("PARTICIPANT_BIRTH")){
-			query.append("(SELECT ID FROM TOURISTS WHERE NAME='" + values.get("PARTICIPANT_NAME") + "' AND ");
-			query.append("LAST_NAME='" + values.get("PARTICIPANT_LAST_NAME") + "' AND ");
-			query.append("BIRTH='" + values.get("PARTICIPANT_BIRTH") + "')");
+		if(values.containsKey("INSTRUCTOR_NAME") && values.containsKey("INSTRUCTOR_LAST_NAME") && values.containsKey("INSTRUCTOR_BIRTH")){
+			query.append("(SELECT ID FROM TOURISTS WHERE NAME='" + values.get("INSTRUCTOR_NAME") + "' AND ");
+			query.append("LAST_NAME='" + values.get("INSTRUCTOR_LAST_NAME") + "' AND ");
+			query.append("BIRTH='" + values.get("INSTRUCTOR_BIRTH") + "')");
+		}
+		query.append(",");
+		if(values.containsKey("TIME")){
+			query.append("'" + values.get("TIME") + "'");
 		}
 		query.append(")");
 		return query.toString();
@@ -47,24 +51,27 @@ public class ParticipationHelper implements QueryHelper{
 		if(values == null || fields == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("UPDATE PARTICIPATION SET ");
+		StringBuilder query = new StringBuilder("UPDATE CONDUCTED_HIKE SET ");
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "COMPETITION":
-					query.append(attribute + "=(SELECT ID FROM COMPETITIONS WHERE NAME='" + value + "'),");
+				case "HIKE":
+					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "'),");
+					break;
+				case "TIME":
+					query.append(attribute + "='" + value + "',");
 					break;
 			}
 		});
-		query.append("PARTICIPANT=(SELECT ID FROM TOURISTS WHERE ");
+		query.append("INSTRUCTOR=(SELECT ID FROM TOURISTS WHERE ");
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "PARTICIPANT_NAME":
+				case "INSTRUCTOR_NAME":
 					query.append("NAME='" + value + "' AND ");
 					break;
-				case "PARTICIPANT_LAST_NAME":
+				case "INSTRUCTOR_LAST_NAME":
 					query.append("LAST_NAME='" + value + "' AND ");
 					break;
-				case "PARTICIPANT_BIRTH":
+				case "INSTRUCTOR_BIRTH":
 					query.append("BIRTH='" + value + "' AND ");
 					break;
 			}
@@ -74,8 +81,11 @@ public class ParticipationHelper implements QueryHelper{
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "COMPETITION":
-					query.append(attribute + "=(SELECT ID FROM COMPETITIONS WHERE NAME='" + value + "') AND ");
+				case "HIKE":
+					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "'),");
+					break;
+				case "TIME":
+					query.append(attribute + "='" + value + "',");
 					break;
 			}
 		});
@@ -103,36 +113,24 @@ public class ParticipationHelper implements QueryHelper{
 		if(params == null || params.size() == 0){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("DELETE FROM PARTICIPATION WHERE ");
+		StringBuilder query = new StringBuilder("DELETE FROM CONDUCTED_HIKE WHERE ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "COMPETITION":
-					query.append(attribute + "=(SELECT ID FROM COMPETITIONS WHERE NAME='" + value + "') AND ");
+				case "HIKE":
+					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "') AND ");
 					break;
-			}
-		});
-		query.append("PARTICIPANT=(SELECT ID FROM TOURISTS WHERE ");
-		params.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "PARTICIPANT_NAME":
-					query.append("NAME='" + value + "' AND ");
-					break;
-				case "PARTICIPANT_LAST_NAME":
-					query.append("LAST_NAME='" + value + "' AND ");
-					break;
-				case "PARTICIPANT_BIRTH":
-					query.append("BIRTH='" + value + "' AND ");
+				case "TIME":
+					query.append(attribute + "='" + value + "' AND ");
 					break;
 			}
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
-		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
 	public String getColumns(){
-		return "PARTICIPANT_NAME;PARTICIPANT_LAST_NAME;PARTICIPANT_BIRTH;COMPETITION";
+		return "HIKE;INSTRUCTOR_NAME;INSTRUCTOR_LAST_NAME;INSTRUCTOR_BIRTH;TIME";
 	}
 	
 	private String scanFile(String fileName){
@@ -153,5 +151,5 @@ public class ParticipationHelper implements QueryHelper{
 		return text.toString();
 	}
 	
-	private String SELECT_FILE = "SQL_select_participation.txt";
+	private String SELECT_FILE = "SQL_select_conducted_hikes.txt";
 }

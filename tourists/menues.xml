@@ -272,6 +272,7 @@
 				<texts>
 					<text>M</text>
 					<text>W</text>
+					<text> </text>
 				</texts>
 			</dropdown>
 		</dropdowns>
@@ -415,7 +416,7 @@
 			<button>
 				<text>Find</text>
 				<helper>tourists.helpers.ButtonSelecter</helper>
-				<param>tourists.helpers.RoutesHelper</param>
+				<param>tourists.helpers.InstructorsHelper</param>
 			</button>
 			<button>
 				<text>Back</text>

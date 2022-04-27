@@ -45,7 +45,7 @@ public class SectionsHelper implements QueryHelper{
 			}
 		});
 		query.delete(query.length() - (" AND ").length(), query.length());
-		query.append(")");
+		query.append("))");
 		return query.toString();
 	}
 	

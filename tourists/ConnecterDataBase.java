@@ -115,6 +115,7 @@ public class ConnecterDataBase{
 		}
 		catch(SQLException e){
 			System.err.println("Can't execute command:\n" + getMessageForError(e.getErrorCode()));
+			System.err.println("Can't execute command:\n" + e.getMessage());
 			System.err.println("Query:\n" + query);
 			return null;
 		}

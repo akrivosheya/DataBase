@@ -3,7 +3,7 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
-public class SportsmenHelper implements QueryHelper{
+public class CheckpointsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
 		File file = new File(SELECT_FILE);
@@ -28,21 +28,17 @@ public class SportsmenHelper implements QueryHelper{
 		if(values == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("INSERT INTO SPORTSMEN VALUES(");
-		query.append("(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "NAME":
-				case "LAST_NAME":
-				case "BIRTH":
-					query.append(attribute + "='" + value + "' AND ");
-					break;
-			}
-		});
-		query.delete(query.length() - " AND ".length(), query.length());
-		query.append("),");
-		if(values.containsKey("GROUP_ID")){
-			query.append(values.get("GROUP_ID"));
+		StringBuilder query = new StringBuilder("INSERT INTO CHECK_POINT VALUES(");
+		if(values.containsKey("HIKE")){
+			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "')");
+		}
+		query.append(",");
+		if(values.containsKey("DAY")){
+			query.append(values.get("DAY"));
+		}
+		query.append(",");
+		if(values.containsKey("PLACE")){
+			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("TRAINING") + "')");
 		}
 		query.append(")");
 		return query.toString();
@@ -50,59 +46,68 @@ public class SportsmenHelper implements QueryHelper{
 	
 	@Override
 	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
-		if(values == null || fields == null || fields.size() <= 2){
+		if(values == null || fields == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("UPDATE SPORTSMEN SET ");
+		StringBuilder query = new StringBuilder("UPDATE CHECK_POINT SET ");
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "GROUP_ID":
+				case "HIKE":
+					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "'),");
+					break;
+				case "PLACE":
+					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "'),");
+					break;
+				case "DAY":
 					query.append(attribute + "=" + value + ",");
 					break;
 			}
 		});
-		query.deleteCharAt(query.length() - 1);
-		query.append("\nWHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
+		query.delete(query.length() - 1, query.length());
+		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "NAME":
-				case "LAST_NAME":
-				case "BIRTH":
-					query.append(attribute + "='" + value + "' AND ");
+				case "HIKE":
+					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "') AND ");
+					break;
+				case "PLACE":
+					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "') AND ");
+					break;
+				case "DAY":
+					query.append(attribute + "=" + value + " AND ");
 					break;
 			}
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
-		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
 	public String getDeletingQuery(Map<String, String> params){
-		if(params == null || params.size() < 2){
+		if(params == null || params.size() == 0){
 			return null;
 		}
-		StringBuilder query = new StringBuilder(
-		"DELETE FROM SPORTSMEN WHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
+		StringBuilder query = new StringBuilder("DELETE FROM CHECK_POINT WHERE ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "NAME":
-				case "LAST_NAME":
-				case "BIRTH":
-					query.append(attribute + "='" + value + "' AND ");
+				case "HIKE":
+					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "') AND ");
+					break;
+				case "PLACE":
+					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "') AND ");
+					break;
+				case "DAY":
+					query.append(attribute + "=" + value + " AND ");
 					break;
 			}
 		});
-		if(query.length() <= ("DELETE FROM SPORTSMEN WHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ").length()){
-			return null;
-		}
-		query.setCharAt(query.length() - (" AND ").length(), ')');
-		return query.substring(0, query.length() - "AND ".length());
+		query.delete(query.length() - " AND ".length(), query.length());
+		return query.toString();
 	}
 	
 	@Override
 	public String getColumns(){
-		return "NAME;LAST_NAME;BIRTH;GROUP_ID";
+		return "HIKE;DAY;PLACE";
 	}
 	
 	private String scanFile(String fileName){
@@ -123,5 +128,5 @@ public class SportsmenHelper implements QueryHelper{
 		return text.toString();
 	}
 	
-	private String SELECT_FILE = "SQL_select_sportsmen.txt";
+	private String SELECT_FILE = "SQL_select_checkpoints.txt";
 }

@@ -66,6 +66,7 @@ public class DirectorsHelper implements QueryHelper{
 		if(values.containsKey("BIRTH")){
 			query.append("'" + values.get("BIRTH") + "'");
 		}
+		query.append(",");
 		if(values.containsKey("ADMISSION")){
 			query.append("'" + values.get("ADMISSION") + "'");
 		}
@@ -75,7 +76,7 @@ public class DirectorsHelper implements QueryHelper{
 		}
 		query.append(",");
 		if(values.containsKey("SECTION")){
-			query.append("(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + values.get("SECTION") + "')");
+			query.append("(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTIONS.NAME='" + values.get("SECTION") + "')");
 		}
 		query.append(")");
 		return query.toString();
@@ -86,11 +87,11 @@ public class DirectorsHelper implements QueryHelper{
 		if(values == null || fields == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("UPDATE COACHES SET ");
+		StringBuilder query = new StringBuilder("UPDATE DIRECTORS SET ");
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "SECTION":
-					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + value + "'),");
+					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTIONS.NAME='" + value + "'),");
 					break;
 				case "NAME":
 				case "LAST_NAME":
@@ -104,14 +105,13 @@ public class DirectorsHelper implements QueryHelper{
 			}
 		});
 		query.deleteCharAt(query.length() - 1);
-		query.append("\nWHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
+		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "NAME":
 				case "LAST_NAME":
 				case "BIRTH":
 				case "ADMISSION":
-				case "SECTION":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "SALARY":
@@ -120,7 +120,6 @@ public class DirectorsHelper implements QueryHelper{
 			}
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
-		query.append(")");
 		return query.toString();
 	}
 	
@@ -134,7 +133,7 @@ public class DirectorsHelper implements QueryHelper{
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "SECTION":
-					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + value + "') AND ");
+					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTIONS.NAME='" + value + "') AND ");
 					break;
 				case "NAME":
 				case "LAST_NAME":

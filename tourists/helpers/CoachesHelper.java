@@ -30,14 +30,19 @@ public class CoachesHelper implements QueryHelper{
 								query.append("SECTIONS.NAME='" + value + "' AND\n");
 								break;
 							case "Sex":
-								query.append("TOURISTS.SEX='" + value + "' AND\n");
+								if(value.isBlank()){
+									query.append("(TOURISTS.SEX='M' OR TOURISTS.SEX='W') AND\n");
+								}
+								else{
+									query.append("TOURISTS.SEX='" + value + "' AND\n");
+								}
 								break;
 							case "Age":
 								int year = Calendar.getInstance().get(Calendar.YEAR);
 								query.append(year + "-EXTRACT(YEAR FROM TOURISTS.BIRTH)=" + value + " AND\n");
 								break;
 							case "Salary":
-								query.append("COACHES.CATEGORY=" + value + " AND\n");
+								query.append("COACHES.SALARY=" + value + " AND\n");
 								break;
 							case "Specialization":
 								query.append("COACHES.SPECIALIZATION='" + value + "' AND\n");
@@ -77,12 +82,8 @@ public class CoachesHelper implements QueryHelper{
 			switch(attribute){
 				case "NAME":
 				case "LAST_NAME":
-				case "SEX":
 				case "BIRTH":
 					query.append(attribute + "='" + value + "' AND ");
-					break;
-				case "CATEGORY":
-					query.append(attribute + "=" + value + " AND ");
 					break;
 			}
 		});
@@ -93,7 +94,7 @@ public class CoachesHelper implements QueryHelper{
 		}
 		query.append(",");
 		if(values.containsKey("SECTION")){
-			query.append("(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + values.get("SECTION") + "')");
+			query.append("(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTIONS.NAME='" + values.get("SECTION") + "')");
 		}
 		query.append(",");
 		if(values.containsKey("SALARY")){
@@ -112,7 +113,7 @@ public class CoachesHelper implements QueryHelper{
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "SECTION":
-					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTION.NAME='" + value + "'),");
+					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTIONS.NAME='" + value + "'),");
 					break;
 				case "SPECIALIZATION":
 					query.append(attribute + "='" + value + "',");
@@ -128,12 +129,8 @@ public class CoachesHelper implements QueryHelper{
 			switch(attribute){
 				case "NAME":
 				case "LAST_NAME":
-				case "SEX":
 				case "BIRTH":
 					query.append(attribute + "='" + value + "' AND ");
-					break;
-				case "CATEGORY":
-					query.append(attribute + "=" + value + " AND ");
 					break;
 			}
 		});
@@ -153,12 +150,8 @@ public class CoachesHelper implements QueryHelper{
 			switch(attribute){
 				case "NAME":
 				case "LAST_NAME":
-				case "SEX":
 				case "BIRTH":
 					query.append(attribute + "='" + value + "' AND ");
-					break;
-				case "CATEGORY":
-					query.append(attribute + "=" + value + " AND ");
 					break;
 			}
 		});
@@ -166,12 +159,12 @@ public class CoachesHelper implements QueryHelper{
 			return null;
 		}
 		query.setCharAt(query.length() - (" AND ").length(), ')');
-		return query.substring(0, query.length() - " AND ".length());
+		return query.substring(0, query.length() - "AND ".length());
 	}
 	
 	@Override
 	public String getColumns(){
-		return "NAME;LAST_NAME;SEX;BIRTH;CATEGORY;SPECIALIZATION;SECTION;SALARY";
+		return "NAME;LAST_NAME;BIRTH;SPECIALIZATION;SECTION;SALARY";
 	}
 	
 	private String scanFile(String fileName){
