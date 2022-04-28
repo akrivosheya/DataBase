@@ -30,7 +30,7 @@ public class AttendanceHelper implements QueryHelper{
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO ATTENDANCE VALUES(");
 		if(values.containsKey("SPORTSMAN_NAME") && values.containsKey("SPORTSMAN_LAST_NAME") && values.containsKey("SPORTSMAN_BIRTH")){
-			query.append("(SELECT ID FROM SPORTSMEN WHERE NAME='" + values.get("SPORTSMAN_NAME") + "' AND ");
+			query.append("(SELECT ID FROM TOURISTS WHERE NAME='" + values.get("SPORTSMAN_NAME") + "' AND ");
 			query.append("LAST_NAME='" + values.get("SPORTSMAN_LAST_NAME") + "' AND ");
 			query.append("BIRTH='" + values.get("SPORTSMAN_BIRTH") + "')");
 		}
@@ -153,6 +153,7 @@ public class AttendanceHelper implements QueryHelper{
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
 		query.append(")");
+		System.out.println(query.toString());
 		return query.toString();
 	}
 	

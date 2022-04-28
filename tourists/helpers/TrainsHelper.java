@@ -30,7 +30,7 @@ public class TrainsHelper implements QueryHelper{
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO TRAINS VALUES(");
 		if(values.containsKey("COACH_NAME") && values.containsKey("COACH_LAST_NAME") && values.containsKey("COACH_BIRTH")){
-			query.append("(SELECT ID FROM COACHES WHERE NAME='" + values.get("COACH_NAME") + "' AND ");
+			query.append("(SELECT ID FROM TOURISTS WHERE NAME='" + values.get("COACH_NAME") + "' AND ");
 			query.append("LAST_NAME='" + values.get("COACH_LAST_NAME") + "' AND ");
 			query.append("BIRTH='" + values.get("COACH_BIRTH") + "')");
 		}
@@ -62,7 +62,7 @@ public class TrainsHelper implements QueryHelper{
 					break;
 			}
 		});
-		query.append("COACH=(SELECT ID FROM COACHES WHERE ");
+		query.append("COACH=(SELECT ID FROM TOURISTS WHERE ");
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "COACH_NAME":
@@ -89,7 +89,7 @@ public class TrainsHelper implements QueryHelper{
 					break;
 			}
 		});
-		query.append("COACH=(SELECT ID FROM COACHES WHERE ");
+		query.append("COACH=(SELECT ID FROM TOURISTS WHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "COACH_NAME":
@@ -124,7 +124,7 @@ public class TrainsHelper implements QueryHelper{
 					break;
 			}
 		});
-		query.append("COACH=(SELECT ID FROM COACHES WHERE ");
+		query.append("COACH=(SELECT ID FROM TOURISTS WHERE ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "COACH_NAME":

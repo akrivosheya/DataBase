@@ -3,7 +3,7 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
-public class CheckpointsHelper implements QueryHelper{
+public class DiariesHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
 		File file = new File(SELECT_FILE);
@@ -28,17 +28,14 @@ public class CheckpointsHelper implements QueryHelper{
 		if(values == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("INSERT INTO CHECK_POINT VALUES(");
-		if(values.containsKey("HIKE")){
-			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "')");
+		StringBuilder query = new StringBuilder("INSERT INTO DIARY VALUES(1,");
+		if(values.containsKey("HIKE") && values.containsKey("TIME")){
+			query.append("(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE=HIKE.ID AND HIKE.NAME='" + values.get("HIKE") + "' AND ");
+			query.append("CONDUCTED_HIKE.TIME='" + values.get("TIME") + "')");
 		}
 		query.append(",");
-		if(values.containsKey("DAY")){
-			query.append(values.get("DAY"));
-		}
-		query.append(",");
-		if(values.containsKey("PLACE")){
-			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "')");
+		if(values.containsKey("TEXT")){
+			query.append("'" + values.get("TEXT") + "'");
 		}
 		query.append(")");
 		return query.toString();
@@ -49,36 +46,41 @@ public class CheckpointsHelper implements QueryHelper{
 		if(values == null || fields == null){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("UPDATE CHECK_POINT SET ");
+		StringBuilder query = new StringBuilder("UPDATE DIARY SET ");
+		query.append("HIKE=(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE=HIKE.ID AND ");
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "HIKE":
-					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "'),");
+					query.append("HIKE.NAME='" + value + "' AND ");
 					break;
-				case "PLACE":
-					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "'),");
-					break;
-				case "DAY":
-					query.append(attribute + "=" + value + ",");
-					break;
-			}
-		});
-		query.delete(query.length() - 1, query.length());
-		query.append("\nWHERE ");
-		fields.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "HIKE":
-					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "') AND ");
-					break;
-				case "PLACE":
-					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "') AND ");
-					break;
-				case "DAY":
-					query.append(attribute + "=" + value + " AND ");
+				case "TIME":
+					query.append("CONDUCTED_HIKE.TIME='" + value + "' AND ");
 					break;
 			}
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
+		query.append("),");
+		values.forEach((String attribute, String value)->{
+			switch(attribute){
+				case "TEXT":
+					query.append("TEXT='" + value + "'");
+					break;
+			}
+		});
+		query.append("\nWHERE ");
+		query.append("HIKE=(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE=HIKE.ID AND ");
+		fields.forEach((String attribute, String value)->{
+			switch(attribute){
+				case "HIKE":
+					query.append("HIKE.NAME='" + value + "' AND ");
+					break;
+				case "TIME":
+					query.append("CONDUCTED_HIKE.TIME='" + value + "' AND ");
+					break;
+			}
+		});
+		query.delete(query.length() - " AND ".length(), query.length());
+		query.append(")");
 		return query.toString();
 	}
 	
@@ -87,27 +89,26 @@ public class CheckpointsHelper implements QueryHelper{
 		if(params == null || params.size() == 0){
 			return null;
 		}
-		StringBuilder query = new StringBuilder("DELETE FROM CHECK_POINT WHERE ");
+		StringBuilder query = new StringBuilder("DELETE FROM DIARY WHERE ");
+		query.append("HIKE=(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE=HIKE.ID AND ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "HIKE":
-					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "') AND ");
+					query.append("HIKE.NAME='" + value + "' AND ");
 					break;
-				case "PLACE":
-					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "') AND ");
-					break;
-				case "DAY":
-					query.append(attribute + "=" + value + " AND ");
+				case "TIME":
+					query.append("CONDUCTED_HIKE.TIME='" + value + "' AND ");
 					break;
 			}
 		});
 		query.delete(query.length() - " AND ".length(), query.length());
+		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
 	public String getColumns(){
-		return "HIKE;DAY;PLACE";
+		return "HIKE;TIME;TEXT";
 	}
 	
 	private String scanFile(String fileName){
@@ -128,5 +129,5 @@ public class CheckpointsHelper implements QueryHelper{
 		return text.toString();
 	}
 	
-	private String SELECT_FILE = "SQL_select_checkpoints.txt";
+	private String SELECT_FILE = "SQL_select_diaries.txt";
 }

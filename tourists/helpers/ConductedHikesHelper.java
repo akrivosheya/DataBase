@@ -82,23 +82,23 @@ public class ConductedHikesHelper implements QueryHelper{
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "HIKE":
-					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "'),");
+					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "') AND ");
 					break;
 				case "TIME":
-					query.append(attribute + "='" + value + "',");
+					query.append(attribute + "='" + value + "' AND ");
 					break;
 			}
 		});
-		query.append("PARTICIPANT=(SELECT ID FROM TOURISTS WHERE ");
+		query.append("INSTRUCTOR=(SELECT ID FROM TOURISTS WHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "PARTICIPANT_NAME":
+				case "INSTRUCTOR_NAME":
 					query.append("NAME='" + value + "' AND ");
 					break;
-				case "PARTICIPANT_LAST_NAME":
+				case "INSTRUCTOR_LAST_NAME":
 					query.append("LAST_NAME='" + value + "' AND ");
 					break;
-				case "PARTICIPANT_BIRTH":
+				case "INSTRUCTOR_BIRTH":
 					query.append("BIRTH='" + value + "' AND ");
 					break;
 			}

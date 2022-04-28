@@ -56,7 +56,7 @@ public class ContainsHelper implements QueryHelper{
 					break;
 			}
 		});
-		query.delete(query.length() - " AND ".length(), query.length());
+		query.delete(query.length() - 1, query.length());
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){

@@ -30,11 +30,11 @@ public class HikesHelper implements QueryHelper{
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO HIKE VALUES(1,");
 		if(values.containsKey("NAME")){
-			query.append("'" + values.get("TRAINING") + "'");
+			query.append("'" + values.get("NAME") + "'");
 		}
 		query.append(",");
 		if(values.containsKey("ROUTE")){
-			query.append("(SELECT ID FROM ROUTE WHERE NAME='" + values.get("ROUTE") + "'),");
+			query.append("(SELECT ID FROM ROUTE WHERE NAME='" + values.get("ROUTE") + "')");
 		}
 		query.append(",");
 		if(values.containsKey("REQUIREMENT")){

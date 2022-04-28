@@ -29,8 +29,8 @@ public class GroupsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO GROUPS VALUES(");
-		if(values.containsKey("SECTION_NAME")){
-			query.append("(SELECT ID FROM SECTIONS WHERE SECTION.NAME='" + values.get("SECTION_NAME") + "')");
+		if(values.containsKey("SECTION")){
+			query.append("(SELECT ID FROM SECTIONS WHERE SECTIONS.NAME='" + values.get("SECTION") + "')");
 		}
 		query.append(",");
 		if(values.containsKey("ID")){
@@ -48,8 +48,8 @@ public class GroupsHelper implements QueryHelper{
 		StringBuilder query = new StringBuilder("UPDATE GROUPS SET ");
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "SECTION_NAME":
-					query.append("GROUPS.SECTION=(SELECT ID FROM SECTIONS WHERE SECTION.NAME='" + value + "'),");
+				case "SECTION":
+					query.append("GROUPS.SECTION=(SELECT ID FROM SECTIONS WHERE SECTIONS.NAME='" + value + "'),");
 					break;
 				case "ID":
 					query.append(attribute + "=" + value + ",");
@@ -76,8 +76,8 @@ public class GroupsHelper implements QueryHelper{
 		StringBuilder query = new StringBuilder("DELETE FROM GROUPS WHERE ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "SECTION_NAME":
-					query.append("GROUPS.SECTION=(SELECT ID FROM SECTIONS WHERE SECTION.NAME='" + value + "') AND ");
+				case "SECTION":
+					query.append("GROUPS.SECTION=(SELECT ID FROM SECTIONS WHERE SECTIONS.NAME='" + value + "') AND ");
 					break;
 				case "ID":
 					query.append(attribute + "=" + value + " AND ");
@@ -89,7 +89,7 @@ public class GroupsHelper implements QueryHelper{
 	
 	@Override
 	public String getColumns(){
-		return "SECTION_NAME;ID";
+		return "SECTION;ID";
 	}
 	
 	private String scanFile(String fileName){

@@ -30,8 +30,8 @@ public class TrainingsHelper implements QueryHelper{
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO TRAININGS VALUES(");
 		query.append("1,");
-		if(values.containsKey("SECTION_NAME")){
-			query.append("(SELECT ID FROM SECTIONS WHERE NAME='" + values.get("SECTION_NAME") + "')");
+		if(values.containsKey("SECTION")){
+			query.append("(SELECT ID FROM SECTIONS WHERE NAME='" + values.get("SECTION") + "')");
 		}
 		query.append(",");
 		if(values.containsKey("NAME")){
@@ -65,7 +65,7 @@ public class TrainingsHelper implements QueryHelper{
 		StringBuilder query = new StringBuilder("UPDATE TRAININGS SET ");
 		values.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "SECTION_NAME":
+				case "SECTION":
 					query.append("TRAININGS.SECTION=(SELECT ID FROM SECTIONS WHERE NAME='" + value + "'),");
 					break;
 				case "NAME":
@@ -83,7 +83,7 @@ public class TrainingsHelper implements QueryHelper{
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "SECTION_NAME":
+				case "SECTION":
 					query.append("TRAININGS.SECTION=(SELECT ID FROM SECTIONS WHERE NAME='" + value + "') AND ");
 					break;
 				case "NAME":
@@ -108,7 +108,7 @@ public class TrainingsHelper implements QueryHelper{
 		StringBuilder query = new StringBuilder("DELETE FROM TRAININGS WHERE ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "SECTION_NAME":
+				case "SECTION":
 					query.append("TRAININGS.SECTION=(SELECT ID FROM SECTIONS WHERE NAME='" + value + "') AND ");
 					break;
 				case "NAME":
@@ -127,7 +127,7 @@ public class TrainingsHelper implements QueryHelper{
 	
 	@Override
 	public String getColumns(){
-		return "SECTION_NAME;NAME;DAY;BEGINNING_HOUR;ENDING_HOUR;PLACE";
+		return "SECTION;NAME;DAY;BEGINNING_HOUR;ENDING_HOUR;PLACE";
 	}
 	
 	private String scanFile(String fileName){
