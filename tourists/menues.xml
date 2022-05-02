@@ -27,15 +27,17 @@
 			<button>
 				<text>Reset database</text>
 				<helper>tourists.helpers.ButtonResetter</helper>
+				<param>ADMINISTRATOR_19212</param>
 			</button>
 			<button>
 				<text>Set test database</text>
 				<helper>tourists.helpers.ButtonTest</helper>
+				<param>ADMINISTRATOR_19212</param>
 			</button>
 			<button>
 				<text>Select information</text>
 				<helper>tourists.helpers.ButtonMenuChanger</helper>
-				<param>select</param>
+				<param>select TOURIST</param>
 			</button>
 			<button>
 				<text>Edit information</text>
@@ -106,97 +108,97 @@
 			<button>
 				<text>Tourists</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.TouristsHelper</param>
+				<param>tourists.helpers.TouristsHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Sportsmen</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.SportsmenHelper</param>
+				<param>tourists.helpers.SportsmenHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Coaches</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.CoachesHelper</param>
+				<param>tourists.helpers.CoachesHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Directors</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.DirectorsHelper</param>
+				<param>tourists.helpers.DirectorsHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Sections</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.SectionsHelper</param>
+				<param>tourists.helpers.SectionsHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Groups</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.GroupsHelper</param>
+				<param>tourists.helpers.GroupsHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Trainings</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.TrainingsHelper</param>
+				<param>tourists.helpers.TrainingsHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Trains</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.TrainsHelper</param>
+				<param>tourists.helpers.TrainsHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Attendance</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.AttendanceHelper</param>
+				<param>tourists.helpers.AttendanceHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Competitions</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.CompetitionsHelper</param>
+				<param>tourists.helpers.CompetitionsHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Participation</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.ParticipationHelper</param>
+				<param>tourists.helpers.ParticipationHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Hikes</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.HikesHelper</param>
+				<param>tourists.helpers.HikesHelper SECTIONS_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Routes</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.RoutesHelper</param>
+				<param>tourists.helpers.RoutesHelper HIKES_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Points</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.PointsHelper</param>
+				<param>tourists.helpers.PointsHelper HIKES_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Points of routes</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.ContainsHelper</param>
+				<param>tourists.helpers.ContainsHelper HIKES_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Checkoints</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.CheckpointsHelper</param>
+				<param>tourists.helpers.CheckpointsHelper HIKES_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Conducted hikes</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.ConductedHikesHelper</param>
+				<param>tourists.helpers.ConductedHikesHelper HIKES_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Diaries</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.DiariesHelper</param>
+				<param>tourists.helpers.DiariesHelper HIKES_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Went to hike</text>
 				<helper>tourists.helpers.ButtonToEditionMenu</helper>
-				<param>tourists.helpers.WentToHikeHelper</param>
+				<param>tourists.helpers.WentToHikeHelper HIKES_DIRECTOR</param>
 			</button>
 			<button>
 				<text>Back</text>

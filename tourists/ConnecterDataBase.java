@@ -31,12 +31,18 @@ public class ConnecterDataBase{
 		else{
 			currentDatabase = database;
 		}
-		try{
+		try {
 			//connection = DriverManager.getConnection("jdbc:oracle:thin:" + 
 			//	user + "/" + password + "@" + currentDatabase);
 			connection = DriverManager.getConnection("jdbc:oracle:thin:" + 
 				"19212_krivosheya" + "/" + "362917458boom" + "@" + currentDatabase);
 			connection.setAutoCommit(false);
+			roles = executeQuery("SELECT GRANTED_ROLE FROM USER_ROLE_PRIVS", List.of("GRANTED_ROLE"));
+			List<String> tmp = new ArrayList<String>();
+			for(String role : roles){
+				tmp.add(role.substring(0, role.length() - 1));
+			}
+			roles = tmp;
 			return true;
 		}
 		catch(SQLException e){
@@ -126,11 +132,18 @@ public class ConnecterDataBase{
 		if(connection != null){
 			try{
 				connection.close();
+				roles = null;
 			}
 			catch(SQLException e){
 				System.err.println("Can't close connection: " + e.getMessage());
 			}
 		}
+	}
+	
+	public boolean hasRole(String role){
+		System.out.println(role);
+		System.out.println(roles);
+		return roles.contains(role);
 	}
 	
 	private String getMessageForError(int error){
@@ -144,4 +157,5 @@ public class ConnecterDataBase{
 	
 	private Connection connection = null;
 	private Properties properties = new Properties();
+	private List<String> roles;
 }

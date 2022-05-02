@@ -31,7 +31,7 @@ public class ButtonSelecter implements ButtonHelper{
 		String query = queryMaster.getSelectingQuery(fields, StringMaster.getFlags(elements.getFlags()));
 		System.out.println(query);
 		if(query == null){
-			windowOpener.sendInformation("Can't get quiery for that operation");
+			windowOpener.sendInformation("Can't get query for that operation");
 			return;
 		}
 		List<String> result = new ArrayList<String>();
