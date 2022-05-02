@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class DirectorsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -23,25 +25,41 @@ public class DirectorsHelper implements QueryHelper{
 		if((fields != null && fields.size() > 0) || (flags != null && flags.size() > 0)){
 			query.append(" WHERE ");
 			if(fields != null){
-				fields.forEach((String attribute, String value)->{
-					if(!value.equals("")){
-						switch(attribute){
+				for(Map.Entry<String, String> entry : fields.entrySet()){
+					if(!entry.getValue().equals("")){
+						switch(entry.getKey()){
 							case "Salary":
-								query.append("DIRECTORS.SALARY=" + value + " AND\n");
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
+								query.append("DIRECTORS.SALARY=" + entry.getValue() + " AND\n");
 								break;
 							case "Birth":
-								query.append("DIRECTORS.BIRTH='" + value + "' AND\n");
+								if(!StringMaster.isDate(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a date");
+									return null;
+								}
+								query.append("DIRECTORS.BIRTH='" + entry.getValue().substring(0, DATE_LENGTH) + "' AND\n");
 								break;
 							case "Age":
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
 								int year = Calendar.getInstance().get(Calendar.YEAR);
-								query.append(year + "-EXTRACT(YEAR FROM DIRECTORS.BIRTH)=" + value + " AND\n");
+								query.append(year + "-EXTRACT(YEAR FROM DIRECTORS.BIRTH)=" + entry.getValue() + " AND\n");
 								break;
 							case "Admission":
-								query.append("DIRECTORS.ADMISSION='" + value + "' AND\n");
+								if(!StringMaster.isDate(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a date");
+									return null;
+								}
+								query.append("DIRECTORS.ADMISSION='" + entry.getValue().substring(0, DATE_LENGTH) + "' AND\n");
 								break;
 						}
 					}
-				});
+				}
 			}
 			return query.substring(0, query.length() - " AND\n".length());
 		}
@@ -58,25 +76,58 @@ public class DirectorsHelper implements QueryHelper{
 		if(values.containsKey("NAME")){
 			query.append("'" + values.get("NAME") + "'");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("LAST_NAME")){
 			query.append("'" + values.get("LAST_NAME") + "'");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("BIRTH")){
-			query.append("'" + values.get("BIRTH") + "'");
+			String birth = values.get("BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a number");
+				return null;
+			}
+			query.append("'" + birth.substring(0, DATE_LENGTH) + "'");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
 		if(values.containsKey("ADMISSION")){
-			query.append("'" + values.get("ADMISSION") + "'");
+			String admission = values.get("ADMISSION");
+			if(!StringMaster.isDate(admission)){
+				System.err.println(admission + " is not a number");
+				return null;
+			}
+			query.append("'" + admission.substring(0, DATE_LENGTH) + "'");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
 		if(values.containsKey("SALARY")){
-			query.append(values.get("SALARY"));
+			String salary = values.get("SALARY");
+			if(!StringMaster.isNumber(salary)){
+				System.err.println(salary + " is not a number");
+				return null;
+			}
+			query.append(salary);
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
 		if(values.containsKey("SECTION")){
 			query.append("(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTIONS.NAME='" + values.get("SECTION") + "')");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -88,23 +139,63 @@ public class DirectorsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE DIRECTORS SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "SECTION":
-					query.append(attribute + "=(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTIONS.NAME='" + value + "'),");
-					break;
-				case "NAME":
-				case "LAST_NAME":
-				case "BIRTH":
-				case "ADMISSION":
-					query.append(attribute + "='" + value + "',");
-					break;
-				case "SALARY":
-					query.append(attribute + "=" + value + ",");
-					break;
+		query.append("SECTION=");
+		if(values.containsKey("SECTION")){
+			query.append("(SELECT SECTIONS.ID FROM SECTIONS WHERE SECTIONS.NAME='" + values.get("SECTION") + "'),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("NAME=");
+		if(values.containsKey("NAME")){
+			query.append("'" + values.get("NAME") + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("LAST_NAME=");
+		if(values.containsKey("LAST_NAME")){
+			query.append("'" + values.get("LAST_NAME") + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("BIRTH=");
+		if(values.containsKey("BIRTH")){
+			String birth = values.get("BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a number");
+				return null;
 			}
-		});
-		query.deleteCharAt(query.length() - 1);
+			query.append("'" + birth.substring(0, DATE_LENGTH) + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("ADMISSION=");
+		if(values.containsKey("ADMISSION")){
+			String admission = values.get("ADMISSION");
+			if(!StringMaster.isDate(admission)){
+				System.err.println(admission + " is not a number");
+				return null;
+			}
+			query.append("'" + admission.substring(0, DATE_LENGTH) + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("SALARY=");
+		if(values.containsKey("SALARY")){
+			String salary = values.get("SALARY");
+			if(!StringMaster.isNumber(salary)){
+				System.err.println(salary + " is not a number");
+				return null;
+			}
+			query.append(salary);
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -172,5 +263,6 @@ public class DirectorsHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_directors.txt";
 }

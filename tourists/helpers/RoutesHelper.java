@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class RoutesHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -23,42 +25,58 @@ public class RoutesHelper implements QueryHelper{
 		if((fields != null && fields.size() > 0) || (flags != null && flags.size() > 0)){
 			query.append(" WHERE ");
 			if(fields != null){
-				fields.forEach((String attribute, String value)->{
-					if(!value.equals("")){
-						switch(attribute){
+				for(Map.Entry<String, String> entry : fields.entrySet()){
+					if(!entry.getValue().equals("")){
+						switch(entry.getKey()){
 							case "Section":
-								query.append("SECTIONS.NAME='" + value + "' AND\n");
+								query.append("SECTIONS.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "After day":
-								query.append("CONDUCTED_HIKE.TIME>='" + value + "' AND\n");
+								query.append("CONDUCTED_HIKE.TIME>='" + entry.getValue() + "' AND\n");
 								break;
 							case "Before day":
-								query.append("CONDUCTED_HIKE.TIME<='" + value + "' AND\n");
+								query.append("CONDUCTED_HIKE.TIME<='" + entry.getValue() + "' AND\n");
 								break;
 							case "Instructor name":
-								query.append("TOURISTS.NAME='" + value + "' AND\n");
+								query.append("TOURISTS.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Instructor last name":
-								query.append("TOURISTS.LAST_NAME='" + value + "' AND\n");
+								query.append("TOURISTS.LAST_NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Instructor birth":
-								query.append("TOURISTS.BIRTH='" + value + "' AND\n");
+								if(!StringMaster.isDate(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a date");
+									return null;
+								}
+								query.append("TOURISTS.BIRTH='" + entry.getValue() + "' AND\n");
 								break;
 							case "Groups count":
-								query.append("ROUTES_GROUPS_COUNT.COUNT=" + value + " AND\n");
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
+								query.append("ROUTES_GROUPS_COUNT.COUNT=" + entry.getValue() + " AND\n");
 								break;
 							case "Contain point":
-								query.append("PLACE.NAME='" + value + "' AND\n");
+								query.append("PLACE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Has length more than":
-								query.append("ROUTE.LENGTH_METRE>=" + value + " AND\n");
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
+								query.append("ROUTE.LENGTH_METRE>=" + entry.getValue() + " AND\n");
 								break;
 							case "Min category":
-								query.append("HIKE.CATEGORY<=" + value + " AND\n");
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
+								query.append("HIKE.CATEGORY<=" + entry.getValue() + " AND\n");
 								break;
 						}
 					}
-				});
+				}
 			}
 			return query.substring(0, query.length() - " AND\n".length());
 		}
@@ -75,9 +93,19 @@ public class RoutesHelper implements QueryHelper{
 		if(values.containsKey("NAME")){
 			query.append("'" + values.get("NAME") + "'");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("LENGTH_METRE")){
-			query.append(values.get("LENGTH_METRE"));
+			String length = values.get("LENGTH_METRE");
+			if(!StringMaster.isNumber(length)){
+				System.out.println(length + " is not a number");
+			}
+			query.append(length);
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -89,17 +117,24 @@ public class RoutesHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE ROUTE SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "NAME":
-					query.append(attribute + "='" + value + "',");
-					break;
-				case "LENGTH_METRE":
-					query.append(attribute + "=" + value + ",");
-					break;
+		query.append("NAME=");
+		if(values.containsKey("NAME")){
+			query.append("'" + values.get("NAME") + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("LENGTH_METRE=");
+		if(values.containsKey("LENGTH_METRE")){
+			String length = values.get("LENGTH_METRE");
+			if(!StringMaster.isNumber(length)){
+				System.out.println(length + " is not a number");
 			}
-		});
-		query.deleteCharAt(query.length() - 1);
+			query.append(length);
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){

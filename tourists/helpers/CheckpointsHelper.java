@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class CheckpointsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -32,13 +34,22 @@ public class CheckpointsHelper implements QueryHelper{
 		if(values.containsKey("HIKE")){
 			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "')");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("DAY")){
 			query.append(values.get("DAY"));
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("PLACE")){
 			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "')");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -50,20 +61,27 @@ public class CheckpointsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE CHECK_POINT SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "HIKE":
-					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "'),");
-					break;
-				case "PLACE":
-					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "'),");
-					break;
-				case "DAY":
-					query.append(attribute + "=" + value + ",");
-					break;
-			}
-		});
-		query.delete(query.length() - 1, query.length());
+		query.append("HIKE=");
+		if(values.containsKey("HIKE")){
+			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "'),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("PLACE=");
+		if(values.containsKey("PLACE")){
+			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "'),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("DAY=");
+		if(values.containsKey("DAY")){
+			query.append(values.get("DAY"));
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -127,6 +145,5 @@ public class CheckpointsHelper implements QueryHelper{
 		}
 		return text.toString();
 	}
-	
 	private String SELECT_FILE = "SQL_select_checkpoints.txt";
 }

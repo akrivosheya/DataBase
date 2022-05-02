@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class SportsmenHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -29,20 +31,37 @@ public class SportsmenHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO SPORTSMEN VALUES(");
-		query.append("(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "NAME":
-				case "LAST_NAME":
-				case "BIRTH":
-					query.append(attribute + "='" + value + "' AND ");
-					break;
+		if(values.containsKey("NAME") || values.containsKey("LAST_NAME")
+			|| values.containsKey("BIRTH")){
+			query.append("(SELECT ID FROM TOURISTS WHERE ");
+			String name = values.get("NAME");
+			String lastName = values.get("LAST_NAME");
+			String birth = values.get("BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
 			}
-		});
-		query.delete(query.length() - " AND ".length(), query.length());
-		query.append("),");
+			if(name != null){
+				query.append("NAME='" + name + "' AND ");
+			}
+			if(lastName != null){
+				query.append("LAST_NAME='" + lastName + "' AND ");
+			}
+			if(birth != null){
+				query.append("BIRTH='" + birth.substring(0, DATE_LENGTH) + "' AND ");
+			}
+			query.delete(query.length() - " AND ".length(), query.length());
+			query.append(")");
+		}
+		else{
+			query.append("NULL");
+		}
+		query.append(",");
 		if(values.containsKey("GROUP_ID")){
 			query.append(values.get("GROUP_ID"));
+		}
+		else{
+			query.append(values.get("NULL"));
 		}
 		query.append(")");
 		return query.toString();
@@ -54,14 +73,14 @@ public class SportsmenHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE SPORTSMEN SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "GROUP_ID":
-					query.append(attribute + "=" + value + ",");
-					break;
-			}
-		});
-		query.deleteCharAt(query.length() - 1);
+		query.append("GROUP_ID=");
+		if(values.containsKey("GROUP_ID")){
+			System.out.println(values.get("GROUP_ID"));
+			query.append(values.get("GROUP_ID"));
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ID=(SELECT TOURISTS.ID FROM TOURISTS WHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -123,5 +142,6 @@ public class SportsmenHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_sportsmen.txt";
 }

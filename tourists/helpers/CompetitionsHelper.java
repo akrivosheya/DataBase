@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class CompetitionsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -63,9 +65,20 @@ public class CompetitionsHelper implements QueryHelper{
 		if(values.containsKey("NAME")){
 			query.append("'" + values.get("NAME") + "'");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("TIME")){
-			query.append("'" + values.get("TIME") + "'");
+			String time = values.get("TIME");
+			if(!StringMaster.isDate(time)){
+				System.out.println(time + " is not a date");
+				return null;
+			}
+			query.append("'" + time.substring(0, DATE_LENGTH) + "'");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -77,15 +90,25 @@ public class CompetitionsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE COMPETITIONS SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "TIME":
-				case "NAME":
-					query.append(attribute + "='" + value + "',");
-					break;
+		query.append("NAME=");
+		if(values.containsKey("NAME")){
+			query.append("'" + values.get("NAME") + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("TIME=");
+		if(values.containsKey("TIME")){
+			String time = values.get("TIME");
+			if(!StringMaster.isDate(time)){
+				System.out.println(time + " is not a date");
+				return null;
 			}
-		});
-		query.deleteCharAt(query.length() - 1);
+			query.append("'" + time.substring(0, DATE_LENGTH) + "'");
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -140,5 +163,6 @@ public class CompetitionsHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_competitions.txt";
 }

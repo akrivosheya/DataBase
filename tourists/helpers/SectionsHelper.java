@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class SectionsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -33,19 +35,36 @@ public class SectionsHelper implements QueryHelper{
 		if(values.containsKey("NAME")){
 			query.append("'" + values.get("NAME") + "'");
 		}
-		query.append(",(SELECT ID FROM DIRECTORS WHERE ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "DIRECTOR_NAME":
-					query.append("NAME='" + value + "' AND ");
-					break;
-				case "DIRECTOR_LAST_NAME":
-					query.append("LAST_NAME='" + value + "' AND ");
-					break;
+		else{
+			query.append("NULL");
+		}
+		query.append(",");
+		if(values.containsKey("DIRECTOR_NAME") || values.containsKey("DIRECTOR_LAST_NAME")
+			|| values.containsKey("DIRECTOR_BIRTH")){
+			query.append("(SELECT ID FROM DIRECTORS WHERE ");
+			String name = values.get("DIRECTOR_NAME");
+			String lastName = values.get("DIRECTOR_LAST_NAME");
+			String birth = values.get("DIRECTOR_BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
 			}
-		});
-		query.delete(query.length() - (" AND ").length(), query.length());
-		query.append("))");
+			if(name != null){
+				query.append("NAME='" + name + "' AND ");
+			}
+			if(lastName != null){
+				query.append("LAST_NAME='" + lastName + "' AND ");
+			}
+			if(birth != null){
+				query.append("BIRTH='" + birth.substring(0, DATE_LENGTH) + "' AND ");
+			}
+			query.delete(query.length() - " AND ".length(), query.length());
+			query.append(")");
+		}
+		else{
+			query.append("NULL");
+		}
+		query.append(")");
 		return query.toString();
 	}
 	
@@ -55,33 +74,44 @@ public class SectionsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE SECTIONS SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "NAME":
-					query.append(attribute + "='" + value + "',");
-					break;
+		query.append("NAME=");
+		if(values.containsKey("NAME")){
+			query.append("'" + values.get("NAME") + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("DIRECTOR=");
+		if(values.containsKey("DIRECTOR_NAME") || values.containsKey("DIRECTOR_LAST_NAME")
+			|| values.containsKey("DIRECTOR_BIRTH")){
+			query.append("(SELECT ID FROM DIRECTORS WHERE ");
+			String name = values.get("DIRECTOR_NAME");
+			String lastName = values.get("DIRECTOR_LAST_NAME");
+			String birth = values.get("DIRECTOR_BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
 			}
-		});
-		query.append("DIRECTOR=(SELECT ID FROM DIRECTORS WHERE ");
-		fields.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "DIRECTOR_NAME":
-					query.append("NAME='" + value + "' AND ");
-					break;
-				case "DIRECTOR_LAST_NAME":
-					query.append("LAST_NAME='" + value + "' AND ");
-					break;
+			if(name != null){
+				query.append("NAME='" + name + "' AND ");
 			}
-		});
-		query.delete(query.length() - (" AND ").length(), query.length());
-		query.append(")\nWHERE ");
+			if(lastName != null){
+				query.append("LAST_NAME='" + lastName + "' AND ");
+			}
+			if(birth != null){
+				query.append("BIRTH='" + birth.substring(0, DATE_LENGTH) + "' AND ");
+			}
+			query.delete(query.length() - " AND ".length(), query.length());
+			query.append(")");
+		}
+		else{
+			query.append("NULL");
+		}
+		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
 				case "NAME":
 					query.append(attribute + "='" + value + "' AND ");
-					break;
-				case "CATEGORY":
-					query.append(attribute + "=" + value + " AND ");
 					break;
 			}
 		});
@@ -106,7 +136,7 @@ public class SectionsHelper implements QueryHelper{
 	
 	@Override
 	public String getColumns(){
-		return "NAME;DIRECTOR_NAME;DIRECTOR_LAST_NAME";
+		return "NAME;DIRECTOR_NAME;DIRECTOR_LAST_NAME;DIRECTOR_BIRTH";
 	}
 	
 	private String scanFile(String fileName){
@@ -127,5 +157,6 @@ public class SectionsHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_sections.txt";
 }

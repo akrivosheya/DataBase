@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class ParticipationHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -32,11 +34,34 @@ public class ParticipationHelper implements QueryHelper{
 		if(values.containsKey("COMPETITION")){
 			query.append("(SELECT ID FROM COMPETITIONS WHERE NAME='" + values.get("COMPETITION") + "')");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
-		if(values.containsKey("PARTICIPANT_NAME") && values.containsKey("PARTICIPANT_LAST_NAME") && values.containsKey("PARTICIPANT_BIRTH")){
-			query.append("(SELECT ID FROM TOURISTS WHERE NAME='" + values.get("PARTICIPANT_NAME") + "' AND ");
-			query.append("LAST_NAME='" + values.get("PARTICIPANT_LAST_NAME") + "' AND ");
-			query.append("BIRTH='" + values.get("PARTICIPANT_BIRTH") + "')");
+		if(values.containsKey("PARTICIPANT_NAME") || values.containsKey("PARTICIPANT_LAST_NAME")
+			|| values.containsKey("PARTICIPANT_BIRTH")){
+			query.append("(SELECT ID FROM TOURISTS WHERE ");
+			String name = values.get("PARTICIPANT_NAME");
+			String lastName = values.get("PARTICIPANT_LAST_NAME");
+			String birth = values.get("PARTICIPANT_BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
+			}
+			if(name != null){
+				query.append("NAME='" + name + "' AND ");
+			}
+			if(lastName != null){
+				query.append("LAST_NAME='" + lastName + "' AND ");
+			}
+			if(birth != null){
+				query.append("BIRTH='" + birth.substring(0, DATE_LENGTH) + "' AND ");
+			}
+			query.delete(query.length() - " AND ".length(), query.length());
+			query.append(")");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -48,29 +73,39 @@ public class ParticipationHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE PARTICIPATION SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "COMPETITION":
-					query.append(attribute + "=(SELECT ID FROM COMPETITIONS WHERE NAME='" + value + "'),");
-					break;
+		query.append("COMPETITION=");
+		if(values.containsKey("COMPETITION")){
+			query.append("(SELECT ID FROM COMPETITIONS WHERE NAME='" + values.get("COMPETITION") + "'),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("PARTICIPANT=");
+		if(values.containsKey("PARTICIPANT_NAME") || values.containsKey("PARTICIPANT_LAST_NAME")
+			|| values.containsKey("PARTICIPANT_BIRTH")){
+			query.append("(SELECT ID FROM TOURISTS WHERE ");
+			String name = values.get("PARTICIPANT_NAME");
+			String lastName = values.get("PARTICIPANT_LAST_NAME");
+			String birth = values.get("PARTICIPANT_BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
 			}
-		});
-		query.append("PARTICIPANT=(SELECT ID FROM TOURISTS WHERE ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "PARTICIPANT_NAME":
-					query.append("NAME='" + value + "' AND ");
-					break;
-				case "PARTICIPANT_LAST_NAME":
-					query.append("LAST_NAME='" + value + "' AND ");
-					break;
-				case "PARTICIPANT_BIRTH":
-					query.append("BIRTH='" + value + "' AND ");
-					break;
+			if(name != null){
+				query.append("NAME='" + name + "' AND ");
 			}
-		});
-		query.delete(query.length() - " AND ".length(), query.length());
-		query.append(")");
+			if(lastName != null){
+				query.append("LAST_NAME='" + lastName + "' AND ");
+			}
+			if(birth != null){
+				query.append("BIRTH='" + birth.substring(0, DATE_LENGTH) + "' AND ");
+			}
+			query.delete(query.length() - " AND ".length(), query.length());
+			query.append(")");
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -153,5 +188,6 @@ public class ParticipationHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_participation.txt";
 }

@@ -82,4 +82,87 @@ public class StringMaster{
 		}
 		return list;
 	}
+	
+	public static boolean isDate(String string){
+		if(string == null){
+			return true;
+		}
+		if(string.length() < DATE_LENGTH){
+			return false;
+		}
+		int i = 0;
+		if(!isNumber(string, i, DAY_LENGTH)){
+			return false;
+		}
+		i += DAY_LENGTH;
+		if(string.charAt(i) != '.'){
+			return false;
+		}
+		++i;
+		if(!isNumber(string, i, i + MONTH_LENGTH)){
+			return false;
+		}
+		i += MONTH_LENGTH;
+		if(string.charAt(i) != '.'){
+			return false;
+		}
+		++i;
+		if(!isNumber(string, i, i + YEAR_LENGTH)){
+			return false;
+		}
+		if(string.length() > DATE_LENGTH && !string.substring(i, string.length()).isBlank()){
+			return false;
+		}
+		return true;
+	}
+	
+	public static boolean isFlag(String flag){
+		if(flag == null){
+			return true;
+		}
+		if(flag.isEmpty() || flag.isBlank()){
+			return false;
+		}
+		char digit = flag.charAt(0);
+		if(!(Character.isDigit(digit) && digit <= '1')){
+			return false;
+		}
+		if(flag.length() > 1 && !flag.substring(1, flag.length()).isBlank()){
+			return false;
+		}
+		return true;
+	}
+	
+	public static boolean isNumber(String number){
+		if(number == null){
+			return true;
+		}
+		char[] arrayChar = number.toCharArray();
+		for(char character : arrayChar){
+			if(!Character.isDigit(character)){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private static boolean isNumber(String string, int begin, int end){
+		if(string == null){
+			return false;
+		}
+		if(end < begin || string.length() < begin){
+			return false;
+		}
+		for(int i = begin; i < end; ++i){
+			if(!Character.isDigit(string.charAt(i))){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private static int DAY_LENGTH = 2;
+	private static int MONTH_LENGTH = 2;
+	private static int YEAR_LENGTH = 4;
+	private static int DATE_LENGTH = 10;
 }

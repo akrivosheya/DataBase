@@ -32,9 +32,15 @@ public class GroupsHelper implements QueryHelper{
 		if(values.containsKey("SECTION")){
 			query.append("(SELECT ID FROM SECTIONS WHERE SECTIONS.NAME='" + values.get("SECTION") + "')");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("ID")){
 			query.append(values.get("ID"));
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -46,17 +52,20 @@ public class GroupsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE GROUPS SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "SECTION":
-					query.append("GROUPS.SECTION=(SELECT ID FROM SECTIONS WHERE SECTIONS.NAME='" + value + "'),");
-					break;
-				case "ID":
-					query.append(attribute + "=" + value + ",");
-					break;
-			}
-		});
-		query.deleteCharAt(query.length() - 1);
+		query.append("SECTION=");
+		if(values.containsKey("SECTION")){
+			query.append("(SELECT ID FROM SECTIONS WHERE SECTIONS.NAME='" + values.get("SECTION") + "'),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("ID=");
+		if(values.containsKey("ID")){
+			query.append(values.get("ID"));
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){

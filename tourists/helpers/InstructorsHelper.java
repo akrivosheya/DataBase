@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class InstructorsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -23,27 +25,35 @@ public class InstructorsHelper implements QueryHelper{
 		if((fields != null && fields.size() > 0) || (flags != null && flags.size() > 0)){
 			query.append(" WHERE ");
 			if(fields != null){
-				fields.forEach((String attribute, String value)->{
-					if(!value.equals("")){
-						switch(attribute){
+				for(Map.Entry<String, String> entry : fields.entrySet()){
+					if(!entry.getValue().equals("")){
+						switch(entry.getKey()){
 							case "Category":
-								query.append("TOURISTS.CATEGORY=" + value + " AND\n");
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
+								query.append("TOURISTS.CATEGORY=" + entry.getValue() + " AND\n");
 								break;
 							case "Hike":
-								query.append("HIKE.NAME='" + value + "' AND\n");
+								query.append("HIKE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Hikes count":
-								query.append("INSTRUCTORS_HIKES_COUNT.COUNT=" + value + " AND\n");
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
+								query.append("INSTRUCTORS_HIKES_COUNT.COUNT=" + entry.getValue() + " AND\n");
 								break;
 							case "Route":
-								query.append("ROUTE.NAME='" + value + "' AND\n");
+								query.append("ROUTE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Point":
-								query.append("PLACE.NAME='" + value + "' AND\n");
+								query.append("PLACE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 						}
 					}
-				});
+				}
 			}
 			if(flags != null){
 				Iterator<String> iteratorFlag = flags.iterator();

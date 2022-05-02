@@ -60,6 +60,7 @@ public class ConnecterDataBase{
 		while(iterator.hasNext()){
 			try(Statement stmt = connection.createStatement()){
 				query = iterator.next();
+				stmt.setQueryTimeout(TIMEOUT_MILLIS);
 				stmt.execute(query);
 			}
 			catch(SQLException e){
@@ -100,6 +101,7 @@ public class ConnecterDataBase{
 		List<String> rows = new ArrayList<String>();
 		StringBuilder row = new StringBuilder("");
 		try(Statement stmt = connection.createStatement()){
+			stmt.setQueryTimeout(TIMEOUT_MILLIS);
 			ResultSet resultSet = stmt.executeQuery(query);
 			while(resultSet.next()){
 				Iterator<String> iteratorKey = keys.iterator();
@@ -141,8 +143,6 @@ public class ConnecterDataBase{
 	}
 	
 	public boolean hasRole(String role){
-		System.out.println(role);
-		System.out.println(roles);
 		return roles.contains(role);
 	}
 	
@@ -154,6 +154,7 @@ public class ConnecterDataBase{
 	private int ERROR_CODE_NOT_EXIST = 942;
 	private int ERROR_CODE_ALREADY_EXIST = 955;
 	private int ERROR_TRIGGER_DOES_NOT_EXISTS = 4080;
+	private int TIMEOUT_MILLIS = 5000;
 	
 	private Connection connection = null;
 	private Properties properties = new Properties();

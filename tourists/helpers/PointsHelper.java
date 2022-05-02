@@ -33,6 +33,9 @@ public class PointsHelper implements QueryHelper{
 		if(values.containsKey("NAME")){
 			query.append("'" + values.get("NAME") + "'");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(")");
 		return query.toString();
 	}
@@ -43,13 +46,13 @@ public class PointsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE PLACE SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "NAME":
-					query.append(attribute + "='" + value + "'");
-					break;
-			}
-		});
+		query.append("NAME=");
+		if(values.containsKey("NAME")){
+			query.append("'" + values.get("NAME") + "'");
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){

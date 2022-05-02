@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class DiariesHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -30,12 +32,22 @@ public class DiariesHelper implements QueryHelper{
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO DIARY VALUES(1,");
 		if(values.containsKey("HIKE") && values.containsKey("TIME")){
-			query.append("(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE=HIKE.ID AND HIKE.NAME='" + values.get("HIKE") + "' AND ");
-			query.append("CONDUCTED_HIKE.TIME='" + values.get("TIME") + "')");
+			query.append("(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE=HIKE.ID AND ");
+			String hike = values.get("HIKE");
+			String time = values.get("TIME");
+			if(!StringMaster.isDate(time)){
+				System.err.println(time + " is not a date");
+				return null;
+			}
+			query.append("HIKE.NAME='" + hike + "' AND ");
+			query.append("CONDUCTED_HIKE.TIME='" + time.substring(0, DATE_LENGTH) + "')");
 		}
 		query.append(",");
 		if(values.containsKey("TEXT")){
 			query.append("'" + values.get("TEXT") + "'");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -47,26 +59,28 @@ public class DiariesHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE DIARY SET ");
-		query.append("HIKE=(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE=HIKE.ID AND ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "HIKE":
-					query.append("HIKE.NAME='" + value + "' AND ");
-					break;
-				case "TIME":
-					query.append("CONDUCTED_HIKE.TIME='" + value + "' AND ");
-					break;
+		query.append("HIKE=");
+		if(values.containsKey("HIKE") && values.containsKey("TIME")){
+			query.append("(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE=HIKE.ID AND ");
+			String hike = values.get("HIKE");
+			String time = values.get("TIME");
+			if(!StringMaster.isDate(time)){
+				System.err.println(time + " is not a date");
+				return null;
 			}
-		});
-		query.delete(query.length() - " AND ".length(), query.length());
-		query.append("),");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "TEXT":
-					query.append("TEXT='" + value + "'");
-					break;
-			}
-		});
+			query.append("HIKE.NAME='" + hike + "' AND ");
+			query.append("CONDUCTED_HIKE.TIME='" + time.substring(0, DATE_LENGTH) + "'),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("TEXT=");
+		if(values.containsKey("TEXT")){
+			query.append("'" + values.get("TEXT") + "'");
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		query.append("HIKE=(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE=HIKE.ID AND ");
 		fields.forEach((String attribute, String value)->{
@@ -129,5 +143,6 @@ public class DiariesHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_diaries.txt";
 }

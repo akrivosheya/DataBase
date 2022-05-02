@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class AttendanceHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -29,22 +31,60 @@ public class AttendanceHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO ATTENDANCE VALUES(");
-		if(values.containsKey("SPORTSMAN_NAME") && values.containsKey("SPORTSMAN_LAST_NAME") && values.containsKey("SPORTSMAN_BIRTH")){
-			query.append("(SELECT ID FROM TOURISTS WHERE NAME='" + values.get("SPORTSMAN_NAME") + "' AND ");
-			query.append("LAST_NAME='" + values.get("SPORTSMAN_LAST_NAME") + "' AND ");
-			query.append("BIRTH='" + values.get("SPORTSMAN_BIRTH") + "')");
+		if(values.containsKey("SPORTSMAN_NAME") || values.containsKey("SPORTSMAN_LAST_NAME")
+			|| values.containsKey("SPORTSMAN_BIRTH")){
+			query.append("(SELECT ID FROM TOURISTS WHERE ");
+			String name = values.get("SPORTSMAN_NAME");
+			String lastName = values.get("SPORTSMAN_LAST_NAME");
+			String birth = values.get("SPORTSMAN_BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
+			}
+			if(name != null){
+				query.append("NAME='" + name + "' AND ");
+			}
+			if(lastName != null){
+				query.append("LAST_NAME='" + lastName + "' AND ");
+			}
+			if(birth != null){
+				query.append("BIRTH='" + birth.substring(0, DATE_LENGTH) + "' AND ");
+			}
+			query.delete(query.length() - " AND ".length(), query.length());
+			query.append(")");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
-		if(values.containsKey("TRAINING")){
-			query.append("(SELECT ID FROM TRAININGS WHERE NAME='" + values.get("TRAINING") + "')");
+		if(values.containsKey("SECTION") && values.containsKey("TRAINING")){
+			query.append("(SELECT ID FROM TRAININGS WHERE ");
+			String name = values.get("TRAINING");
+			String section = values.get("SECTION");
+			query.append("NAME='" + name + "' AND ");
+			query.append("SECTION=(SELECT ID FROM SECTIONS WHERE NAME = '" + section + "'))");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
 		if(values.containsKey("TIME")){
 			query.append("'" + values.get("TIME") + "'");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("VISITED")){
-			query.append(values.get("VISITED"));
+			String visited = values.get("VISITED");
+			if(!StringMaster.isFlag(visited)){
+				System.err.println(visited + " is not a flag");
+				return null;
+			}
+			query.append(values.get("VISITED").charAt(0));
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -56,41 +96,63 @@ public class AttendanceHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE ATTENDANCE SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "TRAINING":
-					query.append(attribute + "=(SELECT ID FROM TRAININGS WHERE NAME='" + value + "'),");
-					break;
-				case "TIME":
-					query.append(attribute + "='" + value + "',");
-					break;
-				case "VISITED":
-					query.append(attribute + "=" + value + ",");
-					break;
+		query.append("TRAINING=");
+		if(values.containsKey("SECTION") && values.containsKey("TRAINING")){
+			query.append("(SELECT ID FROM TRAININGS WHERE ");
+			String name = values.get("TRAINING");
+			String section = values.get("SECTION");
+			query.append("NAME='" + name + "' AND ");
+			query.append("SECTION=(SELECT ID FROM SECTIONS WHERE NAME = '" + section + "')),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		String time = values.get("TIME");
+		if(!StringMaster.isDate(time)){
+			System.err.println(time + " is not a date");
+			return null;
+		}
+		query.append("TIME=");
+		if(time == null){
+			query.append("NULL,");
+		}
+		else{
+			query.append("'" + time.substring(0, DATE_LENGTH) + "',");
+		}
+		if(!StringMaster.isFlag(values.get("VISITED"))){
+			System.err.println(values.get("VISITED") + " is not a flag");
+			return null;
+		}
+		query.append("VISITED=" + values.get("VISITED") + ",");
+		query.append("SPORTSMAN=");
+		if(values.containsKey("SPORTSMAN_NAME") || values.containsKey("SPORTSMAN_LAST_NAME")
+			|| values.containsKey("SPORTSMAN_BIRTH")){
+			query.append("(SELECT ID FROM TOURISTS WHERE ");
+			String name = values.get("SPORTSMAN_NAME");
+			String lastName = values.get("SPORTSMAN_LAST_NAME");
+			String birth = values.get("SPORTSMAN_BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
 			}
-		});
-		query.append("SPORTSMAN=(SELECT ID FROM TOURISTS WHERE ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "SPORTSMAN_NAME":
-					query.append("NAME='" + value + "' AND ");
-					break;
-				case "SPORTSMAN_LAST_NAME":
-					query.append("LAST_NAME='" + value + "' AND ");
-					break;
-				case "SPORTSMAN_BIRTH":
-					query.append("BIRTH='" + value + "' AND ");
-					break;
+			if(name != null){
+				query.append("NAME='" + name + "' AND ");
 			}
-		});
-		query.delete(query.length() - " AND ".length(), query.length());
-		query.append(")");
+			if(lastName != null){
+				query.append("LAST_NAME='" + lastName + "' AND ");
+			}
+			if(birth != null){
+				query.append("BIRTH='" + birth.substring(0, DATE_LENGTH) + "' AND ");
+			}
+			query.delete(query.length() - " AND ".length(), query.length());
+			query.append(")");
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "TRAINING":
-					query.append(attribute + "=(SELECT ID FROM TRAININGS WHERE NAME='" + value + "') AND ");
-					break;
 				case "TIME":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
@@ -99,6 +161,19 @@ public class AttendanceHelper implements QueryHelper{
 					break;
 			}
 		});
+		query.append("TRAINING=(SELECT ID FROM TRAININGS WHERE ");
+		fields.forEach((String attribute, String value)->{
+			switch(attribute){
+				case "TRAINING":
+					query.append("NAME='" + value + "' AND ");
+					break;
+				case "SECTION":
+					query.append(attribute + "=(SELECT ID FROM SECTIONS WHERE NAME = '" + value + "') AND ");
+					break;
+			}
+		});
+		query.delete(query.length() - " AND ".length(), query.length());
+		query.append(") AND ");
 		query.append("SPORTSMAN=(SELECT ID FROM TOURISTS WHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -126,9 +201,6 @@ public class AttendanceHelper implements QueryHelper{
 		StringBuilder query = new StringBuilder("DELETE FROM ATTENDANCE WHERE ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "TRAINING":
-					query.append(attribute + "=(SELECT ID FROM TRAININGS WHERE NAME='" + value + "') AND ");
-					break;
 				case "TIME":
 					query.append(attribute + "='" + value + "' AND ");
 					break;
@@ -137,6 +209,19 @@ public class AttendanceHelper implements QueryHelper{
 					break;
 			}
 		});
+		query.append("TRAINING=(SELECT ID FROM TRAININGS WHERE ");
+		params.forEach((String attribute, String value)->{
+			switch(attribute){
+				case "TRAINING":
+					query.append("NAME='" + value + "' AND ");
+					break;
+				case "SECTION":
+					query.append(attribute + "=(SELECT ID FROM SECTIONS WHERE NAME = '" + value + "') AND ");
+					break;
+			}
+		});
+		query.delete(query.length() - " AND ".length(), query.length());
+		query.append(") AND ");
 		query.append("SPORTSMAN=(SELECT ID FROM TOURISTS WHERE ");
 		params.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -159,7 +244,7 @@ public class AttendanceHelper implements QueryHelper{
 	
 	@Override
 	public String getColumns(){
-		return "SPORTSMAN_NAME;SPORTSMAN_LAST_NAME;SPORTSMAN_BIRTH;TRAINING;TIME;VISITED";
+		return "SPORTSMAN_NAME;SPORTSMAN_LAST_NAME;SPORTSMAN_BIRTH;TRAINING;SECTION;TIME;VISITED";
 	}
 	
 	private String scanFile(String fileName){
@@ -180,5 +265,6 @@ public class AttendanceHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_attendance.txt";
 }

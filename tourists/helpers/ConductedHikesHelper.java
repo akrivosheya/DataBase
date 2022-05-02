@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class ConductedHikesHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -32,15 +34,46 @@ public class ConductedHikesHelper implements QueryHelper{
 		if(values.containsKey("HIKE")){
 			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "')");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
-		if(values.containsKey("INSTRUCTOR_NAME") && values.containsKey("INSTRUCTOR_LAST_NAME") && values.containsKey("INSTRUCTOR_BIRTH")){
-			query.append("(SELECT ID FROM TOURISTS WHERE NAME='" + values.get("INSTRUCTOR_NAME") + "' AND ");
-			query.append("LAST_NAME='" + values.get("INSTRUCTOR_LAST_NAME") + "' AND ");
-			query.append("BIRTH='" + values.get("INSTRUCTOR_BIRTH") + "')");
+		if(values.containsKey("INSTRUCTOR_NAME") || values.containsKey("INSTRUCTOR_LAST_NAME")
+			|| values.containsKey("INSTRUCTOR_BIRTH")){
+			query.append("(SELECT ID FROM TOURISTS WHERE ");
+			String name = values.get("INSTRUCTOR_NAME");
+			String lastName = values.get("INSTRUCTOR_LAST_NAME");
+			String birth = values.get("INSTRUCTOR_BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
+			}
+			if(name != null){
+				query.append("NAME='" + name + "' AND ");
+			}
+			if(lastName != null){
+				query.append("LAST_NAME='" + lastName + "' AND ");
+			}
+			if(birth != null){
+				query.append("BIRTH='" + birth.substring(0, DATE_LENGTH) + "' AND ");
+			}
+			query.delete(query.length() - " AND ".length(), query.length());
+			query.append(")");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
 		if(values.containsKey("TIME")){
-			query.append("'" + values.get("TIME") + "'");
+			String time = values.get("TIME");
+			if(!StringMaster.isDate(time)){
+				System.err.println(time + " is not a time");
+				return null;
+			}
+			query.append("'" + time.substring(0, DATE_LENGTH) + "'");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -52,32 +85,51 @@ public class ConductedHikesHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE CONDUCTED_HIKE SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "HIKE":
-					query.append(attribute + "=(SELECT ID FROM HIKE WHERE NAME='" + value + "'),");
-					break;
-				case "TIME":
-					query.append(attribute + "='" + value + "',");
-					break;
+		query.append("HIKE=");
+		if(values.containsKey("HIKE")){
+			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "'),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("TIME=");
+		if(values.containsKey("TIME")){
+			String time = values.get("TIME");
+			if(!StringMaster.isDate(time)){
+				System.err.println(time + " is not a time");
+				return null;
 			}
-		});
-		query.append("INSTRUCTOR=(SELECT ID FROM TOURISTS WHERE ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "INSTRUCTOR_NAME":
-					query.append("NAME='" + value + "' AND ");
-					break;
-				case "INSTRUCTOR_LAST_NAME":
-					query.append("LAST_NAME='" + value + "' AND ");
-					break;
-				case "INSTRUCTOR_BIRTH":
-					query.append("BIRTH='" + value + "' AND ");
-					break;
+			query.append("'" + time.substring(0, DATE_LENGTH) + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("INSTRUCTOR=");
+		if(values.containsKey("INSTRUCTOR_NAME") || values.containsKey("INSTRUCTOR_LAST_NAME")
+			|| values.containsKey("INSTRUCTOR_BIRTH")){
+			query.append("(SELECT ID FROM TOURISTS WHERE ");
+			String name = values.get("INSTRUCTOR_NAME");
+			String lastName = values.get("INSTRUCTOR_LAST_NAME");
+			String birth = values.get("INSTRUCTOR_BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
 			}
-		});
-		query.delete(query.length() - " AND ".length(), query.length());
-		query.append(")");
+			if(name != null){
+				query.append("NAME='" + name + "' AND ");
+			}
+			if(lastName != null){
+				query.append("LAST_NAME='" + lastName + "' AND ");
+			}
+			if(birth != null){
+				query.append("BIRTH='" + birth.substring(0, DATE_LENGTH) + "' AND ");
+			}
+			query.delete(query.length() - " AND ".length(), query.length());
+			query.append(")");
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -151,5 +203,6 @@ public class ConductedHikesHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_conducted_hikes.txt";
 }

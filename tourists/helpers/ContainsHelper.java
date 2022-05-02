@@ -32,9 +32,15 @@ public class ContainsHelper implements QueryHelper{
 		if(values.containsKey("ROUTE")){
 			query.append("(SELECT ID FROM ROUTE WHERE NAME='" + values.get("ROUTE") + "')");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("PLACE")){
 			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "')");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -46,17 +52,20 @@ public class ContainsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE CONTAINS SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "ROUTE":
-					query.append(attribute + "=(SELECT ID FROM ROUTE WHERE NAME='" + value + "'),");
-					break;
-				case "PLACE":
-					query.append(attribute + "=(SELECT ID FROM PLACE WHERE NAME='" + value + "'),");
-					break;
-			}
-		});
-		query.delete(query.length() - 1, query.length());
+		query.append("ROUTE=");
+		if(values.containsKey("ROUTE")){
+			query.append("(SELECT ID FROM ROUTE WHERE NAME='" + values.get("ROUTE") + "'),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("PLACE=");
+		if(values.containsKey("PLACE")){
+			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "')");
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
