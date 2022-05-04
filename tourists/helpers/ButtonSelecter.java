@@ -26,12 +26,13 @@ public class ButtonSelecter implements ButtonHelper{
 		}
 		QueryHelper helper = (QueryHelper)HelperFactory.getInstance().getHelper(helperName);
 		queryMaster.setHelper(helper);
-		Map<String, String> fields = StringMaster.getMapFormTextsAndFields(elements.getTextsWithFields(), elements.getFields());
+		Map<String, String> fields = StringMaster.getMapFromTextsAndFields(elements.getTextsWithFields(), elements.getFields(), true);
 		fields.putAll(StringMaster.getMapFormTextsAndDropdowns(elements.getTextsWithDropdowns(), elements.getDropdowns()));
-		String query = queryMaster.getSelectingQuery(fields, StringMaster.getFlags(elements.getFlags()));
+		StringBuilder result = new StringBuilder("");
+		String query = queryMaster.getSelectingQuery(fields, StringMaster.getFlags(elements.getFlags()), result);
 		System.out.println(query);
 		if(query == null){
-			windowOpener.sendInformation("Can't get query for that operation");
+			windowOpener.sendInformation(result.toString());
 			return;
 		}
 		List<String> rows = new ArrayList<String>();
@@ -44,7 +45,6 @@ public class ButtonSelecter implements ButtonHelper{
 			windowOpener.sendInformation("Can't get rows of select command");
 			return;
 		}
-		StringBuilder result = new StringBuilder("");
 		List<String> values = connecter.executeQuery(query, StringMaster.arrayStringsToList(columns.split(DELIM)), result);
 		if(values == null || (!rows.addAll(values) && values.size() != 0)){
 			windowOpener.sendInformation(result.toString());

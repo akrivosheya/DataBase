@@ -42,8 +42,9 @@ public class ButtonDeleter implements ButtonHelper{
 		}
 		String result = connecter.sendQueries(List.of(query));
 		windowOpener.sendInformation(result);
-		if(!configurator.configureTable(table, queryMaster, connecter)){
-			windowOpener.sendInformation("Have some problems with creating table");
+		StringBuilder message = new StringBuilder("");
+		if(!configurator.configureTable(table, queryMaster, connecter, message)){
+			windowOpener.sendInformation(message.toString());
 		}
 	}
 	

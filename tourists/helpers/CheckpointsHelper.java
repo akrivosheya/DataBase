@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class CheckpointsHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -26,7 +26,7 @@ public class CheckpointsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -35,30 +35,38 @@ public class CheckpointsHelper implements QueryHelper{
 			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter hike");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("DAY")){
-			query.append(values.get("DAY"));
+			String day = values.get("DAY");
+			if(!StringMaster.isNumber(day)){
+				message.append(day + " is not a number. You have to enter positive integer or zero");
+				return null;
+			}
+			query.append(day);
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter day");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("PLACE")){
 			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter place");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
-		if(values == null || fields == null){
-			return null;
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
+		if(values == null || fields == null || message == null){
+			throw new NullPointerException("Null arguments in CheckpointsHelper.getUpdatingQuery");
 		}
 		StringBuilder query = new StringBuilder("UPDATE CHECK_POINT SET ");
 		query.append("HIKE=");
@@ -66,21 +74,29 @@ public class CheckpointsHelper implements QueryHelper{
 			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "'),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter hike");
+			return null;
 		}
 		query.append("PLACE=");
 		if(values.containsKey("PLACE")){
 			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "'),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter place");
+			return null;
 		}
 		query.append("DAY=");
 		if(values.containsKey("DAY")){
-			query.append(values.get("DAY"));
+			String day = values.get("DAY");
+			if(!StringMaster.isNumber(day)){
+				message.append(day + " is not a number. You have to enter positive integer or zero");
+				return null;
+			}
+			query.append(day);
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter day");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{

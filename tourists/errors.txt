@@ -1,0 +1,2 @@
+20000=You insert data that conflicts with existing data
+1=Some problem in server. Please try again

@@ -33,11 +33,14 @@ public class QueryMaster{
 		return queries;
 	}
 	
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
+		if(message == null){
+			throw new NullPointerException("Problem in QueryMaster.getSelectingQuery: message is null");
+		}
 		if(helper == null){
 			return null;
 		}
-		String query = helper.getSelectingQuery(fields, flags);
+		String query = helper.getSelectingQuery(fields, flags, message);
 		return query;
 	}
 	
@@ -49,19 +52,25 @@ public class QueryMaster{
 		return query;
 	}
 	
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
+		if(message == null){
+			throw new NullPointerException("Problem in QueryMaster.getSelectingQuery: message is null");
+		}
 		if(helper == null){
 			return null;
 		}
-		String query = helper.getUpdatingQuery(values, fields);
+		String query = helper.getUpdatingQuery(values, fields, message);
 		return query;
 	}
 	
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
+		if(message == null){
+			throw new NullPointerException("Problem in QueryMaster.getSelectingQuery: message is null");
+		}
 		if(helper == null){
 			return null;
 		}
-		String query = helper.getInsertingQuery(values);
+		String query = helper.getInsertingQuery(values, message);
 		return query;
 	}
 	

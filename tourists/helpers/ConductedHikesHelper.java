@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class ConductedHikesHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -26,7 +26,7 @@ public class ConductedHikesHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -35,7 +35,8 @@ public class ConductedHikesHelper implements QueryHelper{
 			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter hike");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("INSTRUCTOR_NAME") || values.containsKey("INSTRUCTOR_LAST_NAME")
@@ -45,7 +46,7 @@ public class ConductedHikesHelper implements QueryHelper{
 			String lastName = values.get("INSTRUCTOR_LAST_NAME");
 			String birth = values.get("INSTRUCTOR_BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -61,26 +62,28 @@ public class ConductedHikesHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter instructor data");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("TIME")){
 			String time = values.get("TIME");
 			if(!StringMaster.isDate(time)){
-				System.err.println(time + " is not a time");
+				message.append(time + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + time.substring(0, DATE_LENGTH) + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter time");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -90,19 +93,21 @@ public class ConductedHikesHelper implements QueryHelper{
 			query.append("(SELECT ID FROM HIKE WHERE NAME='" + values.get("HIKE") + "'),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter hike");
+			return null;
 		}
 		query.append("TIME=");
 		if(values.containsKey("TIME")){
 			String time = values.get("TIME");
 			if(!StringMaster.isDate(time)){
-				System.err.println(time + " is not a time");
+				message.append(time + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + time.substring(0, DATE_LENGTH) + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter time");
+			return null;
 		}
 		query.append("INSTRUCTOR=");
 		if(values.containsKey("INSTRUCTOR_NAME") || values.containsKey("INSTRUCTOR_LAST_NAME")
@@ -112,7 +117,7 @@ public class ConductedHikesHelper implements QueryHelper{
 			String lastName = values.get("INSTRUCTOR_LAST_NAME");
 			String birth = values.get("INSTRUCTOR_BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -128,7 +133,8 @@ public class ConductedHikesHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter instructor data");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{

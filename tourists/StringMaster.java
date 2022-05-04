@@ -5,7 +5,7 @@ import javafx.scene.control.*;
 import java.util.*;
 
 public class StringMaster{
-	public static Map<String, String> getMapFormTextsAndFields(List<Text> texts, List<TextField> fields){
+	public static Map<String, String> getMapFromTextsAndFields(List<Text> texts, List<TextField> fields, boolean withNull){
 		if(fields == null || texts == null){
 			return null;
 		}
@@ -15,7 +15,7 @@ public class StringMaster{
 		while(iteratorField.hasNext() && iteratorText.hasNext()){
 			TextField field = iteratorField.next();
 			Text text = iteratorText.next();
-			if(field.getText().length() > 0){
+			if(field.getText().length() > 0 && !field.getText().isBlank() && (withNull || !isNull(field.getText()))){
 				strings.put(text.getText(), field.getText());
 			}
 		}
@@ -40,7 +40,7 @@ public class StringMaster{
 		return strings;
 	}
 	
-	public static Map<String, String> getMapFromStrings(List<String> texts, List<String> fields){
+	public static Map<String, String> getMapFromStrings(List<String> texts, List<String> fields, boolean withNull){
 		if(fields == null || texts == null){
 			return null;
 		}
@@ -50,7 +50,7 @@ public class StringMaster{
 		while(iteratorField.hasNext() && iteratorText.hasNext()){
 			String field = iteratorField.next();
 			String text = iteratorText.next();
-			if(field.length() > 0){
+			if(field.length() > 0 && !field.isBlank() && (withNull || !isNull(field))){
 				strings.put(text, field);
 			}
 		}
@@ -163,6 +163,23 @@ public class StringMaster{
 		return true;
 	}
 	
+	public static boolean isNull(String string){
+		if(string == null){
+			return true;
+		}
+		if(string.length() < NULL_LENGTH){
+			return false;
+		}
+		String nullPart = string.substring(0, NULL_LENGTH).toLowerCase();
+		if(!nullPart.equals("null")){
+			return false;
+		}
+		if(string.length() >= NULL_LENGTH && !string.substring(NULL_LENGTH, string.length()).isBlank()){
+			return false;
+		}
+		return true;
+	}
+	
 	private static boolean isNumber(String string, int begin, int end){
 		if(string == null){
 			return false;
@@ -182,4 +199,5 @@ public class StringMaster{
 	private static int MONTH_LENGTH = 2;
 	private static int YEAR_LENGTH = 4;
 	private static int DATE_LENGTH = 10;
+	private static int NULL_LENGTH = 4;
 }

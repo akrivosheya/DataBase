@@ -109,9 +109,8 @@ public class ElementsConfigurator{
 		if(result == null){
 			throw new NullPointerException("Problem in ElementsConfigurator.configureTable: result is null");
 		}
-		String query = queryMaster.getSelectingQuery(null, null);
+		String query = queryMaster.getSelectingQuery(null, null, result);
 		if(query == null){
-			result.append("Can't get quiery for that operation");
 			return false;
 		}
 		List<String> rows = new ArrayList<String>();

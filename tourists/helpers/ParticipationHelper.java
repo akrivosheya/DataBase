@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class ParticipationHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -26,7 +26,7 @@ public class ParticipationHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -35,7 +35,8 @@ public class ParticipationHelper implements QueryHelper{
 			query.append("(SELECT ID FROM COMPETITIONS WHERE NAME='" + values.get("COMPETITION") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter competition");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("PARTICIPANT_NAME") || values.containsKey("PARTICIPANT_LAST_NAME")
@@ -45,7 +46,7 @@ public class ParticipationHelper implements QueryHelper{
 			String lastName = values.get("PARTICIPANT_LAST_NAME");
 			String birth = values.get("PARTICIPANT_BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -61,14 +62,15 @@ public class ParticipationHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter participant data");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -78,7 +80,8 @@ public class ParticipationHelper implements QueryHelper{
 			query.append("(SELECT ID FROM COMPETITIONS WHERE NAME='" + values.get("COMPETITION") + "'),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter competition");
+			return null;
 		}
 		query.append("PARTICIPANT=");
 		if(values.containsKey("PARTICIPANT_NAME") || values.containsKey("PARTICIPANT_LAST_NAME")
@@ -88,7 +91,7 @@ public class ParticipationHelper implements QueryHelper{
 			String lastName = values.get("PARTICIPANT_LAST_NAME");
 			String birth = values.get("PARTICIPANT_BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -104,7 +107,8 @@ public class ParticipationHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter participant data");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{

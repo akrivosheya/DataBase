@@ -38,8 +38,9 @@ public class ButtonToEditionMenu extends ButtonMenuChanger{
 			throw new RuntimeException("Problem in ButtonToEditionMenu.doOnAction: can't get helper " + helperName);
 		}
 		queryMaster.setHelper(helper);
-		if(!configurator.configureTable(table, queryMaster, connecter)){
-			windowOpener.sendInformation("Have some problems with creating table");
+		StringBuilder message = new StringBuilder("");
+		if(!configurator.configureTable(table, queryMaster, connecter, message)){
+			windowOpener.sendInformation(message.toString());
 		}
 		else{
 			groups.get("to_edit").getChildren().add(table);

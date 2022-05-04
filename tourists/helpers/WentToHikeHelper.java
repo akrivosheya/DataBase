@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class WentToHikeHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 		System.out.println("NO FILE");
@@ -28,18 +28,18 @@ public class WentToHikeHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO WENT_TO_HIKE VALUES(");
 		
-		if(values.containsKey("HIKE") || values.containsKey("TIME")){
+		if(values.containsKey("HIKE") && values.containsKey("TIME")){
 			query.append("(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE = HIKE.ID AND ");
 			String name = values.get("HIKE");
 			String time = values.get("TIME");
 			if(!StringMaster.isDate(time)){
-				System.err.println(time + " is not a date");
+				message.append(time + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -52,7 +52,8 @@ public class WentToHikeHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter hike data");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("TOURIST_NAME") || values.containsKey("TOURIST_LAST_NAME")
@@ -62,7 +63,7 @@ public class WentToHikeHelper implements QueryHelper{
 			String lastName = values.get("TOURIST_LAST_NAME");
 			String birth = values.get("TOURIST_BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date fromat: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -78,25 +79,26 @@ public class WentToHikeHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter tourists data");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE WENT_TO_HIKE SET ");
 		query.append("HIKE=");
-		if(values.containsKey("HIKE") || values.containsKey("TIME")){
+		if(values.containsKey("HIKE") && values.containsKey("TIME")){
 			query.append("(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE = HIKE.ID AND ");
 			String name = values.get("HIKE");
 			String time = values.get("TIME");
 			if(!StringMaster.isDate(time)){
-				System.err.println(time + " is not a date");
+				message.append(time + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -109,7 +111,8 @@ public class WentToHikeHelper implements QueryHelper{
 			query.append("),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter hike data");
+			return null;
 		}
 		query.append("TOURIST=");
 		if(values.containsKey("TOURIST_NAME") || values.containsKey("TOURIST_LAST_NAME")
@@ -119,7 +122,7 @@ public class WentToHikeHelper implements QueryHelper{
 			String lastName = values.get("TOURIST_LAST_NAME");
 			String birth = values.get("TOURIST_BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -135,7 +138,8 @@ public class WentToHikeHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter tourist data");
+			return null;
 		}
 		query.append("\nWHERE ");
 		query.append("HIKE=(SELECT CONDUCTED_HIKE.ID FROM CONDUCTED_HIKE, HIKE WHERE CONDUCTED_HIKE.HIKE = HIKE.ID AND ");

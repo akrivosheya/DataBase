@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class CompetitionsHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -29,6 +29,10 @@ public class CompetitionsHelper implements QueryHelper{
 					if(!value.equals("")){
 						switch(attribute){
 							case "Section":
+								if(StringMaster.isNull(value)){
+									query.append("SECTIONS.ID IS NULL AND\n");
+									break;
+								}
 								query.append("SECTIONS.NAME='" + value + "' AND\n");
 								break;
 						}
@@ -56,7 +60,7 @@ public class CompetitionsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -66,13 +70,14 @@ public class CompetitionsHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("TIME")){
 			String time = values.get("TIME");
 			if(!StringMaster.isDate(time)){
-				System.out.println(time + " is not a date");
+				message.append(time + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + time.substring(0, DATE_LENGTH) + "'");
@@ -85,7 +90,7 @@ public class CompetitionsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -95,13 +100,14 @@ public class CompetitionsHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append("TIME=");
 		if(values.containsKey("TIME")){
 			String time = values.get("TIME");
 			if(!StringMaster.isDate(time)){
-				System.out.println(time + " is not a date");
+				message.append(time + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + time.substring(0, DATE_LENGTH) + "'");

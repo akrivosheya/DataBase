@@ -5,7 +5,7 @@ import java.io.*;
 
 public class TrainingsHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -24,7 +24,7 @@ public class TrainingsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -34,35 +34,40 @@ public class TrainingsHelper implements QueryHelper{
 			query.append("(SELECT ID FROM SECTIONS WHERE NAME='" + values.get("SECTION") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter section");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("NAME")){
 			query.append("'" + values.get("NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("DAY")){
 			query.append(values.get("DAY"));
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter day");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("BEGINNING_HOUR")){
 			query.append(values.get("BEGINNING_HOUR"));
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter beginning hour");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("ENDING_HOUR")){
 			query.append(values.get("ENDING_HOUR"));
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter ending hour");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("PLACE")){
@@ -76,7 +81,7 @@ public class TrainingsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -86,14 +91,16 @@ public class TrainingsHelper implements QueryHelper{
 			query.append("(SELECT ID FROM SECTIONS WHERE NAME='" + values.get("SECTION") + "'),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter section");
+			return null;
 		}
 		query.append("NAME=");
 		if(values.containsKey("NAME")){
 			query.append("'" + values.get("NAME") + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append("PLACE=");
 		if(values.containsKey("PLACE")){
@@ -107,21 +114,24 @@ public class TrainingsHelper implements QueryHelper{
 			query.append(values.get("DAY") + ",");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter day");
+			return null;
 		}
 		query.append("BEGINNING_HOUR=");
 		if(values.containsKey("BEGINNING_HOUR")){
 			query.append(values.get("BEGINNING_HOUR") + ",");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter beginning hour");
+			return null;
 		}
 		query.append("ENDING_HOUR=");
 		if(values.containsKey("ENDING_HOUR")){
 			query.append(values.get("ENDING_HOUR"));
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter ending hour");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{

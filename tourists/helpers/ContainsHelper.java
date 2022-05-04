@@ -5,7 +5,7 @@ import java.io.*;
 
 public class ContainsHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -24,7 +24,7 @@ public class ContainsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -33,21 +33,23 @@ public class ContainsHelper implements QueryHelper{
 			query.append("(SELECT ID FROM ROUTE WHERE NAME='" + values.get("ROUTE") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter route");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("PLACE")){
 			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter place");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -57,14 +59,16 @@ public class ContainsHelper implements QueryHelper{
 			query.append("(SELECT ID FROM ROUTE WHERE NAME='" + values.get("ROUTE") + "'),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter route");
+			return null;
 		}
 		query.append("PLACE=");
 		if(values.containsKey("PLACE")){
 			query.append("(SELECT ID FROM PLACE WHERE NAME='" + values.get("PLACE") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter place");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{

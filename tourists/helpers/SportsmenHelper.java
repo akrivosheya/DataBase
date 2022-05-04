@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class SportsmenHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -26,7 +26,7 @@ public class SportsmenHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -38,7 +38,7 @@ public class SportsmenHelper implements QueryHelper{
 			String lastName = values.get("LAST_NAME");
 			String birth = values.get("BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -54,29 +54,30 @@ public class SportsmenHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter sportsman data");
+			return null;
 		}
 		query.append(",");
-		if(values.containsKey("GROUP_ID")){
-			query.append(values.get("GROUP_ID"));
+		if(values.containsKey("GROUP_NAME")){
+			query.append("(SELECT ID FROM GROUPS WHERE NAME ='" + values.get("GROUP_NAME") + "')");
 		}
 		else{
-			query.append(values.get("NULL"));
+			message.append("You have to enter group");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null || fields.size() <= 2){
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE SPORTSMEN SET ");
 		query.append("GROUP_ID=");
-		if(values.containsKey("GROUP_ID")){
-			System.out.println(values.get("GROUP_ID"));
-			query.append(values.get("GROUP_ID"));
+		if(values.containsKey("GROUP_NAME")){
+			query.append("(SELECT ID FROM GROUPS WHERE NAME ='" + values.get("GROUP_NAME") + "')");
 		}
 		else{
 			query.append("NULL");
@@ -121,7 +122,7 @@ public class SportsmenHelper implements QueryHelper{
 	
 	@Override
 	public String getColumns(){
-		return "NAME;LAST_NAME;BIRTH;GROUP_ID";
+		return "NAME;LAST_NAME;BIRTH;GROUP_NAME";
 	}
 	
 	private String scanFile(String fileName){

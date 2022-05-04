@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class DirectorsHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -29,30 +29,38 @@ public class DirectorsHelper implements QueryHelper{
 					if(!entry.getValue().equals("")){
 						switch(entry.getKey()){
 							case "Salary":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("DIRECTORS.SALARY IS NULL AND\n");
+									break;
+								}
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								query.append("DIRECTORS.SALARY=" + entry.getValue() + " AND\n");
 								break;
 							case "Birth":
 								if(!StringMaster.isDate(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a date");
+									message.append(entry.getValue() + " is not a date. Date format: dd.mm.yyyy");
 									return null;
 								}
 								query.append("DIRECTORS.BIRTH='" + entry.getValue().substring(0, DATE_LENGTH) + "' AND\n");
 								break;
 							case "Age":
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								int year = Calendar.getInstance().get(Calendar.YEAR);
 								query.append(year + "-EXTRACT(YEAR FROM DIRECTORS.BIRTH)=" + entry.getValue() + " AND\n");
 								break;
 							case "Admission":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("DIRECTORS.ADMISSION IS NULL AND\n");
+									break;
+								}
 								if(!StringMaster.isDate(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a date");
+									message.append(entry.getValue() + " is not a date. Date format: dd.mm.yyyy");
 									return null;
 								}
 								query.append("DIRECTORS.ADMISSION='" + entry.getValue().substring(0, DATE_LENGTH) + "' AND\n");
@@ -67,7 +75,7 @@ public class DirectorsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -77,32 +85,35 @@ public class DirectorsHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("LAST_NAME")){
 			query.append("'" + values.get("LAST_NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter last name");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("BIRTH")){
 			String birth = values.get("BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a number");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + birth.substring(0, DATE_LENGTH) + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter birth");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("ADMISSION")){
 			String admission = values.get("ADMISSION");
 			if(!StringMaster.isDate(admission)){
-				System.err.println(admission + " is not a number");
+				message.append(admission + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + admission.substring(0, DATE_LENGTH) + "'");
@@ -114,7 +125,7 @@ public class DirectorsHelper implements QueryHelper{
 		if(values.containsKey("SALARY")){
 			String salary = values.get("SALARY");
 			if(!StringMaster.isNumber(salary)){
-				System.err.println(salary + " is not a number");
+				message.append(salary + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(salary);
@@ -134,7 +145,7 @@ public class DirectorsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -151,32 +162,35 @@ public class DirectorsHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append("LAST_NAME=");
 		if(values.containsKey("LAST_NAME")){
 			query.append("'" + values.get("LAST_NAME") + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter last name");
+			return null;
 		}
 		query.append("BIRTH=");
 		if(values.containsKey("BIRTH")){
 			String birth = values.get("BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a number");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + birth.substring(0, DATE_LENGTH) + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter birth");
+			return null;
 		}
 		query.append("ADMISSION=");
 		if(values.containsKey("ADMISSION")){
 			String admission = values.get("ADMISSION");
 			if(!StringMaster.isDate(admission)){
-				System.err.println(admission + " is not a number");
+				message.append(admission + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + admission.substring(0, DATE_LENGTH) + "',");
@@ -188,7 +202,7 @@ public class DirectorsHelper implements QueryHelper{
 		if(values.containsKey("SALARY")){
 			String salary = values.get("SALARY");
 			if(!StringMaster.isNumber(salary)){
-				System.err.println(salary + " is not a number");
+				message.append(salary + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(salary);

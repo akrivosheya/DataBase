@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class TouristsHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -29,9 +29,17 @@ public class TouristsHelper implements QueryHelper{
 					if(!entry.getValue().equals("")){
 						switch(entry.getKey()){
 							case "Section":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("SECTIONS.ID IS NULL AND\n");
+									break;
+								}
 								query.append("SECTIONS.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Group":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("GROUPS.ID IS NULL AND\n");
+									break;
+								}
 								query.append("SPORTSMEN.GROUP_ID=" + entry.getValue() + " AND\n");
 								break;
 							case "Sex":
@@ -44,7 +52,7 @@ public class TouristsHelper implements QueryHelper{
 								break;
 							case "Age":
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								int year = Calendar.getInstance().get(Calendar.YEAR);
@@ -52,30 +60,46 @@ public class TouristsHelper implements QueryHelper{
 								break;
 							case "Birth":
 								if(!StringMaster.isDate(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a date");
+									message.append(entry.getValue() + " is not a date. Date format: dd.mm.yyyy");
 									return null;
 								}
 								query.append("TOURISTS.BIRTH='" + entry.getValue().substring(0, DATE_LENGTH) + "' AND\n");
 								break;
 							case "Hike":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("HIKE.ID IS NULL AND\n");
+									break;
+								}
 								query.append("HIKE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Hikes count":
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								query.append("TOURISTS_HIKES_COUNT.COUNT=" + entry.getValue() + " AND\n");
 								break;
 							case "Route":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("ROUTE.ID IS NULL AND\n");
+									break;
+								}
 								query.append("ROUTE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Point":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("PLACE.ID IS NULL AND\n");
+									break;
+								}
 								query.append("PLACE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Category":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("TOURISTS.CATEGORY IS NULL AND\n");
+									break;
+								}
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								query.append("TOURISTS.CATEGORY=" + entry.getValue() + " AND\n");
@@ -114,7 +138,7 @@ public class TouristsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -124,44 +148,48 @@ public class TouristsHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("LAST_NAME")){
 			query.append("'" + values.get("LAST_NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter last name");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("SEX")){
 			String sex = values.get("SEX");
 			if(!StringMaster.isSex(sex)){
-				System.err.println(sex + " is not a sex");
+				message.append(sex + " is not a sex. Sex is M or W");
 				return null;
 			}
 			query.append("'" + sex + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter sex");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("BIRTH")){
 			String birth = values.get("BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + birth + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter birth");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("CATEGORY")){
 			String category = values.get("CATEGORY");
 			if(!StringMaster.isNumber(category)){
-				System.err.println(category + " is not a number");
+				message.append(category + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(category);
@@ -174,7 +202,7 @@ public class TouristsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -184,44 +212,48 @@ public class TouristsHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append("LAST_NAME=");
 		if(values.containsKey("LAST_NAME")){
 			query.append("'" + values.get("LAST_NAME") + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter last name");
+			return null;
 		}
 		query.append("SEX=");
 		if(values.containsKey("SEX")){
 			String sex = values.get("SEX");
 			if(!StringMaster.isSex(sex)){
-				System.err.println(sex + " is not a sex");
+				message.append(sex + " is not a sex. Sex is M or W");
 				return null;
 			}
 			query.append("'" + sex + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter sex");
+			return null;
 		}
 		query.append("BIRTH=");
 		if(values.containsKey("BIRTH")){
 			String birth = values.get("BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("'" + birth + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter birth");
+			return null;
 		}
 		query.append("CATEGORY=");
 		if(values.containsKey("CATEGORY")){
 			String category = values.get("CATEGORY");
 			if(!StringMaster.isNumber(category)){
-				System.err.println(category + " is not a number");
+				message.append(category + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(category);

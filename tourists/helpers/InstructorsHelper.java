@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class InstructorsHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -27,10 +27,14 @@ public class InstructorsHelper implements QueryHelper{
 			if(fields != null){
 				for(Map.Entry<String, String> entry : fields.entrySet()){
 					if(!entry.getValue().equals("")){
+						if(StringMaster.isNull(entry.getValue())){
+							message.append("You can't enter null values here");
+							return null;
+						}
 						switch(entry.getKey()){
 							case "Category":
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								query.append("TOURISTS.CATEGORY=" + entry.getValue() + " AND\n");
@@ -40,7 +44,7 @@ public class InstructorsHelper implements QueryHelper{
 								break;
 							case "Hikes count":
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								query.append("INSTRUCTORS_HIKES_COUNT.COUNT=" + entry.getValue() + " AND\n");
@@ -79,12 +83,12 @@ public class InstructorsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		return null;
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		return null;
 	}
 	

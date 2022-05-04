@@ -5,7 +5,7 @@ import java.io.*;
 
 public class PointsHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -24,7 +24,7 @@ public class PointsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -34,14 +34,15 @@ public class PointsHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -51,7 +52,8 @@ public class PointsHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{

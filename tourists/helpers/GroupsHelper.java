@@ -5,7 +5,7 @@ import java.io.*;
 
 public class GroupsHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -24,7 +24,7 @@ public class GroupsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -33,21 +33,23 @@ public class GroupsHelper implements QueryHelper{
 			query.append("(SELECT ID FROM SECTIONS WHERE SECTIONS.NAME='" + values.get("SECTION") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter section");
+			return null;
 		}
-		query.append(",");
-		if(values.containsKey("ID")){
-			query.append(values.get("ID"));
+		query.append(",1,");
+		if(values.containsKey("NAME")){
+			query.append(values.get("NAME"));
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -57,20 +59,22 @@ public class GroupsHelper implements QueryHelper{
 			query.append("(SELECT ID FROM SECTIONS WHERE SECTIONS.NAME='" + values.get("SECTION") + "'),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter section");
+			return null;
 		}
-		query.append("ID=");
-		if(values.containsKey("ID")){
-			query.append(values.get("ID"));
+		query.append("NAME=");
+		if(values.containsKey("NAME")){
+			query.append("'" + values.get("NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
-				case "ID":
-					query.append(attribute + "=" + value + " AND ");
+				case "NAME":
+					query.append(attribute + "='" + value + "' AND ");
 					break;
 			}
 		});
@@ -88,8 +92,8 @@ public class GroupsHelper implements QueryHelper{
 				case "SECTION":
 					query.append("GROUPS.SECTION=(SELECT ID FROM SECTIONS WHERE SECTIONS.NAME='" + value + "') AND ");
 					break;
-				case "ID":
-					query.append(attribute + "=" + value + " AND ");
+				case "NAME":
+					query.append(attribute + "='" + value + "' AND ");
 					break;
 			}
 		});
@@ -98,7 +102,7 @@ public class GroupsHelper implements QueryHelper{
 	
 	@Override
 	public String getColumns(){
-		return "SECTION;ID";
+		return "SECTION;NAME";
 	}
 	
 	private String scanFile(String fileName){

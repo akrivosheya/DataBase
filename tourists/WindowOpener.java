@@ -59,15 +59,15 @@ public class WindowOpener{
 		}
 		Button button = new Button("OK");
 		button.setOnAction(e->{
-			String query = queryMaster.getInsertingQuery(StringMaster.getMapFormTextsAndFields(texts, fields));
+			StringBuilder message = new StringBuilder("");
+			String query = queryMaster.getInsertingQuery(StringMaster.getMapFromTextsAndFields(texts, fields, false), message);
 			if(query == null){
-				sendInformation("Can't get query for that operation");
+				sendInformation(message.toString());
 				return;
 			}
 			List<String> queries = List.of(query);
 			String result = connecter.sendQueries(queries);
 			sendInformation(result);
-			StringBuilder message = new StringBuilder("");
 			if(!configurator.configureTable(table, queryMaster, connecter, message)){
 				sendInformation(message.toString());
 			}
@@ -94,16 +94,16 @@ public class WindowOpener{
 		Button button = new Button("OK");
 		Stage window = new Stage();
 		button.setOnAction(e->{
-			String query = queryMaster.getUpdatingQuery(StringMaster.getMapFormTextsAndFields(texts, fields), 
-			StringMaster.getMapFromStrings(columns, values));
+			StringBuilder message = new StringBuilder("");
+			String query = queryMaster.getUpdatingQuery(StringMaster.getMapFromTextsAndFields(texts, fields, false), 
+			StringMaster.getMapFromStrings(columns, values, true), message);
 			if(query == null){
-				sendInformation("Can't get query for that operation");
+				sendInformation(message.toString());
 				return;
 			}
 			List<String> queries = List.of(query);
 			String result = connecter.sendQueries(queries);
 			sendInformation(result);
-			StringBuilder message = new StringBuilder("");
 			if(!configurator.configureTable(table, queryMaster, connecter, message)){
 				sendInformation(message.toString());
 			}

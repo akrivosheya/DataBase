@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class HikesHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -26,7 +26,7 @@ public class HikesHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -35,14 +35,16 @@ public class HikesHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have ot enter name");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("ROUTE")){
 			query.append("(SELECT ID FROM ROUTE WHERE NAME='" + values.get("ROUTE") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have ot enter route");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("REQUIREMENT")){
@@ -55,44 +57,47 @@ public class HikesHelper implements QueryHelper{
 		if(values.containsKey("DAYS")){
 			String days = values.get("DAYS");
 			if(!StringMaster.isNumber(days)){
-				System.err.println(days + " is not a number");
+				message.append(days + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(days);
 		}
 		else{
-			query.append("NULL");
+			message.append("You have ot enter days");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("CATEGORY")){
 			String category = values.get("CATEGORY");
 			if(!StringMaster.isNumber(category)){
-				System.err.println(category + " is not a number");
+				message.append(category + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(category);
 		}
 		else{
-			query.append("NULL");
+			message.append("You have ot enter category");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("HAS_PLAN")){
 			String hasPlan = values.get("HAS_PLAN");
-			if(!StringMaster.isNumber(hasPlan)){
-				System.err.println(hasPlan + " is not a number");
+			if(!StringMaster.isFlag(hasPlan)){
+				message.append(hasPlan + " is not a flag. Flag is 0 or 1");
 				return null;
 			}
 			query.append(hasPlan);
 		}
 		else{
-			query.append("NULL");
+			message.append("You have ot enter has plan");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -101,37 +106,40 @@ public class HikesHelper implements QueryHelper{
 		if(values.containsKey("HAS_PLAN")){
 			String hasPlan = values.get("HAS_PLAN");
 			if(!StringMaster.isFlag(hasPlan)){
-				System.err.println(hasPlan + " is not a flag");
+				message.append(hasPlan + " is not a flag. Flag is 0 or 1");
 				return null;
 			}
 			query.append(hasPlan + ",");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have ot enter has plan");
+			return null;
 		}
 		query.append("CATEGORY=");
 		if(values.containsKey("CATEGORY")){
 			String category = values.get("CATEGORY");
 			if(!StringMaster.isNumber(category)){
-				System.err.println(category + " is not a number");
+				message.append(category + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(category + ",");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have ot enter category");
+			return null;
 		}
 		query.append("DAYS=");
 		if(values.containsKey("DAYS")){
 			String days = values.get("DAYS");
 			if(!StringMaster.isNumber(days)){
-				System.err.println(days + " is not a number");
+				message.append(days + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(days + ",");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have ot enter days");
+			return null;
 		}
 		query.append("REQUIREMENT=");
 		if(values.containsKey("REQUIREMENT")){
@@ -145,14 +153,16 @@ public class HikesHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have ot enter name");
+			return null;
 		}
 		query.append("ROUTE=");
 		if(values.containsKey("ROUTE")){
 			query.append("(SELECT ID FROM ROUTE WHERE NAME='" + values.get("ROUTE") + "')");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have ot enter route");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{

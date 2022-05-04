@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class DiariesHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -26,7 +26,7 @@ public class DiariesHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -36,11 +36,15 @@ public class DiariesHelper implements QueryHelper{
 			String hike = values.get("HIKE");
 			String time = values.get("TIME");
 			if(!StringMaster.isDate(time)){
-				System.err.println(time + " is not a date");
+				message.append(time + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("HIKE.NAME='" + hike + "' AND ");
 			query.append("CONDUCTED_HIKE.TIME='" + time.substring(0, DATE_LENGTH) + "')");
+		}
+		else{
+			message.append("You have to enter hike and time");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("TEXT")){
@@ -54,7 +58,7 @@ public class DiariesHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -65,14 +69,15 @@ public class DiariesHelper implements QueryHelper{
 			String hike = values.get("HIKE");
 			String time = values.get("TIME");
 			if(!StringMaster.isDate(time)){
-				System.err.println(time + " is not a date");
+				message.append(time + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			query.append("HIKE.NAME='" + hike + "' AND ");
 			query.append("CONDUCTED_HIKE.TIME='" + time.substring(0, DATE_LENGTH) + "'),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter hike and time");
+			return null;
 		}
 		query.append("TEXT=");
 		if(values.containsKey("TEXT")){

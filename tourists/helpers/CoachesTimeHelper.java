@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class CoachesTimeHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -27,6 +27,10 @@ public class CoachesTimeHelper implements QueryHelper{
 			if(fields != null){
 				for(Map.Entry<String, String> entry : fields.entrySet()){
 					if(!entry.getValue().equals("")){
+						if(StringMaster.isNull(entry.getValue())){
+							message.append("You can't enter null values here");
+							return null;
+						}
 						switch(entry.getKey()){
 							case "Section":
 								query.append("SECTIONS.NAME='" + entry.getValue() + "' AND\n");
@@ -39,7 +43,7 @@ public class CoachesTimeHelper implements QueryHelper{
 								break;
 							case "Birth":
 								if(!StringMaster.isDate(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a date");
+									message.append(entry.getValue() + " is not a date. Date format: dd.mm.yyyy");
 									return null;
 								}
 								query.append("TOURISTS.BIRTH='" + entry.getValue().substring(0, DATE_LENGTH) + "' AND\n");
@@ -70,12 +74,12 @@ public class CoachesTimeHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		return null;
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		return null;
 	}
 	

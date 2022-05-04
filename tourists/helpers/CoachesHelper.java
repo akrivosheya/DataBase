@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class CoachesHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -29,6 +29,10 @@ public class CoachesHelper implements QueryHelper{
 					if(!entry.getValue().equals("")){
 						switch(entry.getKey()){
 							case "Section":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("SECTIONS.ID IS NULL AND\n");
+									break;
+								}
 								query.append("SECTIONS.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Sex":
@@ -48,6 +52,10 @@ public class CoachesHelper implements QueryHelper{
 								query.append(year + "-EXTRACT(YEAR FROM TOURISTS.BIRTH)=" + entry.getValue().substring(0, DATE_LENGTH) + " AND\n");
 								break;
 							case "Salary":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("COACHES.SALARY IS NULL AND\n");
+									break;
+								}
 								if(!StringMaster.isNumber(entry.getValue())){
 									System.err.println(entry.getValue() + " is not a number");
 									return null;
@@ -58,6 +66,10 @@ public class CoachesHelper implements QueryHelper{
 								query.append("COACHES.SPECIALIZATION='" + entry.getValue() + "' AND\n");
 								break;
 							case "Group":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("GROUPS.ID IS NULL AND\n");
+									break;
+								}
 								query.append("GROUPS.ID=" + entry.getValue() + " AND\n");
 								break;
 							case "Trains after hour":
@@ -82,7 +94,7 @@ public class CoachesHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -94,7 +106,7 @@ public class CoachesHelper implements QueryHelper{
 			String lastName = values.get("LAST_NAME");
 			String birth = values.get("BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -110,14 +122,16 @@ public class CoachesHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter coach data");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("SPECIALIZATION")){
 			query.append("'" + values.get("SPECIALIZATION") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter specialization");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("SECTION")){
@@ -130,7 +144,7 @@ public class CoachesHelper implements QueryHelper{
 		if(values.containsKey("SALARY")){
 			String salary = values.get("SALARY");
 			if(!StringMaster.isNumber(salary)){
-				System.err.println(salary + " is not a number");
+				message.append(salary + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(salary);
@@ -143,7 +157,7 @@ public class CoachesHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null || fields.size() <= 2){
 			return null;
 		}
@@ -160,13 +174,14 @@ public class CoachesHelper implements QueryHelper{
 			query.append("'" + values.get("SPECIALIZATION") + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter specialization");
+			return null;
 		}
 		query.append("SALARY=");
 		if(values.containsKey("SALARY")){
 			String salary = values.get("SALARY");
 			if(!StringMaster.isNumber(salary)){
-				System.err.println(salary + " is not a number");
+				message.append(salary + " is not a number. You have to enter positive integer or zero");
 				return null;
 			}
 			query.append(salary);

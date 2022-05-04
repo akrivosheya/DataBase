@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class AttendanceHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -26,19 +26,19 @@ public class AttendanceHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
-		if(values == null){
-			return null;
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
+		if(values == null || message == null){
+			throw new NullPointerException("Null arguments in AttendanceHelper.getInsertingQuery");
 		}
 		StringBuilder query = new StringBuilder("INSERT INTO ATTENDANCE VALUES(");
-		if(values.containsKey("SPORTSMAN_NAME") || values.containsKey("SPORTSMAN_LAST_NAME")
-			|| values.containsKey("SPORTSMAN_BIRTH")){
+		if(values.containsKey("SPORTSMAN_NAME") || 
+		values.containsKey("SPORTSMAN_LAST_NAME") || values.containsKey("SPORTSMAN_BIRTH")){
 			query.append("(SELECT ID FROM TOURISTS WHERE ");
 			String name = values.get("SPORTSMAN_NAME");
 			String lastName = values.get("SPORTSMAN_LAST_NAME");
 			String birth = values.get("SPORTSMAN_BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -54,7 +54,8 @@ public class AttendanceHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter sportsman data");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("SECTION") && values.containsKey("TRAINING")){
@@ -65,35 +66,43 @@ public class AttendanceHelper implements QueryHelper{
 			query.append("SECTION=(SELECT ID FROM SECTIONS WHERE NAME = '" + section + "'))");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter section and training");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("TIME")){
+			String time = values.get("TIME");
+			if(!StringMaster.isDate(time)){
+				message.append(time + " is not a date. Date format: dd.mm.yyyy");
+				return null;
+			}
 			query.append("'" + values.get("TIME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter time");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("VISITED")){
 			String visited = values.get("VISITED");
 			if(!StringMaster.isFlag(visited)){
-				System.err.println(visited + " is not a flag");
+				message.append(visited + " is not a flag. Flag format: 0 or 1");
 				return null;
 			}
 			query.append(values.get("VISITED").charAt(0));
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter visited");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
-		if(values == null || fields == null){
-			return null;
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
+		if(values == null || fields == null || message == null){
+			throw new NullPointerException("Null arguments in AttendanceHelper.getUpdatingQuery");
 		}
 		StringBuilder query = new StringBuilder("UPDATE ATTENDANCE SET ");
 		query.append("TRAINING=");
@@ -105,34 +114,40 @@ public class AttendanceHelper implements QueryHelper{
 			query.append("SECTION=(SELECT ID FROM SECTIONS WHERE NAME = '" + section + "')),");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to section name and training");
+			return null;
 		}
 		String time = values.get("TIME");
 		if(!StringMaster.isDate(time)){
-			System.err.println(time + " is not a date");
+			message.append(time + " is not a date. Date format: dd.mm.yyyy");
 			return null;
 		}
 		query.append("TIME=");
 		if(time == null){
-			query.append("NULL,");
+			message.append("You have to enter time");
+			return null;
 		}
 		else{
 			query.append("'" + time.substring(0, DATE_LENGTH) + "',");
 		}
 		if(!StringMaster.isFlag(values.get("VISITED"))){
-			System.err.println(values.get("VISITED") + " is not a flag");
+			message.append(values.get("VISITED") + " is not a flag. Flag format: 0 or 1");
+			return null;
+		}
+		if(values.get("VISITED") == null){
+			message.append("You have to enter visited");
 			return null;
 		}
 		query.append("VISITED=" + values.get("VISITED") + ",");
 		query.append("SPORTSMAN=");
 		if(values.containsKey("SPORTSMAN_NAME") || values.containsKey("SPORTSMAN_LAST_NAME")
-			|| values.containsKey("SPORTSMAN_BIRTH")){
+		|| values.containsKey("SPORTSMAN_BIRTH")){
 			query.append("(SELECT ID FROM TOURISTS WHERE ");
 			String name = values.get("SPORTSMAN_NAME");
 			String lastName = values.get("SPORTSMAN_LAST_NAME");
 			String birth = values.get("SPORTSMAN_BIRTH");
 			if(!StringMaster.isDate(birth)){
-				System.err.println(birth + " is not a date");
+				message.append(birth + " is not a date. Date format: dd.mm.yyyy");
 				return null;
 			}
 			if(name != null){
@@ -148,7 +163,8 @@ public class AttendanceHelper implements QueryHelper{
 			query.append(")");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter sportsman data");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{

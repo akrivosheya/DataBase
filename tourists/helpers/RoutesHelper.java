@@ -7,7 +7,7 @@ import tourists.StringMaster;
 
 public class RoutesHelper implements QueryHelper{
 	@Override
-	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
+	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
 		File file = new File(SELECT_FILE);
 		if(!file.exists()){
 			return null;
@@ -29,6 +29,10 @@ public class RoutesHelper implements QueryHelper{
 					if(!entry.getValue().equals("")){
 						switch(entry.getKey()){
 							case "Section":
+								if(StringMaster.isNull(entry.getValue())){
+									query.append("SECTIONS.ID IS NULL AND\n");
+									break;
+								}
 								query.append("SECTIONS.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "After day":
@@ -45,14 +49,14 @@ public class RoutesHelper implements QueryHelper{
 								break;
 							case "Instructor birth":
 								if(!StringMaster.isDate(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a date");
+									message.append(entry.getValue() + " is not a date. Date format: dd.mm.yyyy");
 									return null;
 								}
 								query.append("TOURISTS.BIRTH='" + entry.getValue() + "' AND\n");
 								break;
 							case "Groups count":
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								query.append("ROUTES_GROUPS_COUNT.COUNT=" + entry.getValue() + " AND\n");
@@ -62,14 +66,14 @@ public class RoutesHelper implements QueryHelper{
 								break;
 							case "Has length more than":
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								query.append("ROUTE.LENGTH_METRE>=" + entry.getValue() + " AND\n");
 								break;
 							case "Min category":
 								if(!StringMaster.isNumber(entry.getValue())){
-									System.err.println(entry.getValue() + " is not a number");
+									message.append(entry.getValue() + " is not a number. You have to enter positive integer or zero");
 									return null;
 								}
 								query.append("HIKE.CATEGORY<=" + entry.getValue() + " AND\n");
@@ -84,7 +88,7 @@ public class RoutesHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getInsertingQuery(Map<String, String> values){
+	public String getInsertingQuery(Map<String, String> values, StringBuilder message){
 		if(values == null){
 			return null;
 		}
@@ -94,25 +98,28 @@ public class RoutesHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "'");
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append(",");
 		if(values.containsKey("LENGTH_METRE")){
 			String length = values.get("LENGTH_METRE");
 			if(!StringMaster.isNumber(length)){
-				System.out.println(length + " is not a number");
+				message.append(length + " is not a number. You have to enter positive integer or zero");
+				return null;
 			}
 			query.append(length);
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter length");
+			return null;
 		}
 		query.append(")");
 		return query.toString();
 	}
 	
 	@Override
-	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields){
+	public String getUpdatingQuery(Map<String, String> values, Map<String, String> fields, StringBuilder message){
 		if(values == null || fields == null){
 			return null;
 		}
@@ -122,18 +129,21 @@ public class RoutesHelper implements QueryHelper{
 			query.append("'" + values.get("NAME") + "',");
 		}
 		else{
-			query.append("NULL,");
+			message.append("You have to enter name");
+			return null;
 		}
 		query.append("LENGTH_METRE=");
 		if(values.containsKey("LENGTH_METRE")){
 			String length = values.get("LENGTH_METRE");
 			if(!StringMaster.isNumber(length)){
-				System.out.println(length + " is not a number");
+				message.append(length + " is not a number. You have to enter positive integer or zero");
+				return null;
 			}
 			query.append(length);
 		}
 		else{
-			query.append("NULL");
+			message.append("You have to enter length");
+			return null;
 		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
