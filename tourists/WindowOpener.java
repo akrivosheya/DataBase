@@ -67,8 +67,9 @@ public class WindowOpener{
 			List<String> queries = List.of(query);
 			String result = connecter.sendQueries(queries);
 			sendInformation(result);
-			if(!configurator.configureTable(table, queryMaster, connecter)){
-				sendInformation("Have some problems with creating table");
+			StringBuilder message = new StringBuilder("");
+			if(!configurator.configureTable(table, queryMaster, connecter, message)){
+				sendInformation(message.toString());
 			}
 		});
 		MenuElements elements = new MenuElements();
@@ -102,8 +103,9 @@ public class WindowOpener{
 			List<String> queries = List.of(query);
 			String result = connecter.sendQueries(queries);
 			sendInformation(result);
-			if(!configurator.configureTable(table, queryMaster, connecter)){
-				sendInformation("Have some problems with creating table");
+			StringBuilder message = new StringBuilder("");
+			if(!configurator.configureTable(table, queryMaster, connecter, message)){
+				sendInformation(message.toString());
 			}
 			window.close();
 		});

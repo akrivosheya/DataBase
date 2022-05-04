@@ -33,25 +33,43 @@ public class TrainingsHelper implements QueryHelper{
 		if(values.containsKey("SECTION")){
 			query.append("(SELECT ID FROM SECTIONS WHERE NAME='" + values.get("SECTION") + "')");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("NAME")){
 			query.append("'" + values.get("NAME") + "'");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
 		if(values.containsKey("DAY")){
 			query.append(values.get("DAY"));
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("BEGINNING_HOUR")){
 			query.append(values.get("BEGINNING_HOUR"));
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
 		if(values.containsKey("ENDING_HOUR")){
 			query.append(values.get("ENDING_HOUR"));
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("PLACE")){
 			query.append("'" + values.get("PLACE") + "'");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(")");
 		return query.toString();
@@ -63,23 +81,48 @@ public class TrainingsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE TRAININGS SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "SECTION":
-					query.append("TRAININGS.SECTION=(SELECT ID FROM SECTIONS WHERE NAME='" + value + "'),");
-					break;
-				case "NAME":
-				case "PLACE":
-					query.append(attribute + "='" + value + "',");
-					break;
-				case "DAY":
-				case "BEFINNING_HOUR":
-				case "ENDING_HOUR":
-					query.append(attribute + "=" + value + ",");
-					break;
-			}
-		});
-		query.deleteCharAt(query.length() - 1);
+		query.append("SECTION=");
+		if(values.containsKey("SECTION")){
+			query.append("(SELECT ID FROM SECTIONS WHERE NAME='" + values.get("SECTION") + "'),");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("NAME=");
+		if(values.containsKey("NAME")){
+			query.append("'" + values.get("NAME") + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("PLACE=");
+		if(values.containsKey("PLACE")){
+			query.append("'" + values.get("PLACE") + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("DAY=");
+		if(values.containsKey("DAY")){
+			query.append(values.get("DAY") + ",");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("BEGINNING_HOUR=");
+		if(values.containsKey("BEGINNING_HOUR")){
+			query.append(values.get("BEGINNING_HOUR") + ",");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("ENDING_HOUR=");
+		if(values.containsKey("ENDING_HOUR")){
+			query.append(values.get("ENDING_HOUR"));
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -91,7 +134,7 @@ public class TrainingsHelper implements QueryHelper{
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "DAY":
-				case "BEFINNING_HOUR":
+				case "BEGINNING_HOUR":
 				case "ENDING_HOUR":
 					query.append(attribute + "=" + value + " AND ");
 					break;
@@ -116,7 +159,7 @@ public class TrainingsHelper implements QueryHelper{
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "DAY":
-				case "BEFINNING_HOUR":
+				case "BEGINNING_HOUR":
 				case "ENDING_HOUR":
 					query.append(attribute + "=" + value + " AND ");
 					break;

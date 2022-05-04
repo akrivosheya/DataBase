@@ -34,22 +34,23 @@ public class ButtonSelecter implements ButtonHelper{
 			windowOpener.sendInformation("Can't get query for that operation");
 			return;
 		}
-		List<String> result = new ArrayList<String>();
+		List<String> rows = new ArrayList<String>();
 		String columns = queryMaster.getColumns();
 		if(columns == null){
 			windowOpener.sendInformation("Can't get columns from queryMaster");
 			return;
 		}
-		if(!result.add(columns)){
-			windowOpener.sendInformation("Can't get result of select command");
+		if(!rows.add(columns)){
+			windowOpener.sendInformation("Can't get rows of select command");
 			return;
 		}
-		List<String> values = connecter.executeQuery(query, StringMaster.arrayStringsToList(columns.split(DELIM)));
-		if(values == null || (!result.addAll(values) && values.size() != 0)){
-			windowOpener.sendInformation("Can't get result of select command");
+		StringBuilder result = new StringBuilder("");
+		List<String> values = connecter.executeQuery(query, StringMaster.arrayStringsToList(columns.split(DELIM)), result);
+		if(values == null || (!rows.addAll(values) && values.size() != 0)){
+			windowOpener.sendInformation(result.toString());
 			return;
 		}
-		windowOpener.sendSelectingResult(result, table);
+		windowOpener.sendSelectingResult(rows, table);
 	}
 	
 	private String DELIM = ";";

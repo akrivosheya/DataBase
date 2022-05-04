@@ -133,6 +133,23 @@ public class StringMaster{
 		return true;
 	}
 	
+	public static boolean isSex(String flag){
+		if(flag == null){
+			return true;
+		}
+		if(flag.isEmpty() || flag.isBlank()){
+			return false;
+		}
+		char sex = flag.charAt(0);
+		if(!(sex == 'M' || sex == 'W')){
+			return false;
+		}
+		if(flag.length() > 1 && !flag.substring(1, flag.length()).isBlank()){
+			return false;
+		}
+		return true;
+	}
+	
 	public static boolean isNumber(String number){
 		if(number == null){
 			return true;

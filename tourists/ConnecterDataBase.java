@@ -24,6 +24,9 @@ public class ConnecterDataBase{
 	}
 	
 	public boolean connect(String user, String password, String database, StringBuilder result){
+		if(result == null){
+			throw new NullPointerException("Problem in ConnecterDataBase: result is null");
+		}
 		String currentDatabase;
 		if(database.length() == 0){
 			currentDatabase = DEFAULT_DATABASE;
@@ -37,7 +40,10 @@ public class ConnecterDataBase{
 			connection = DriverManager.getConnection("jdbc:oracle:thin:" + 
 				"19212_krivosheya" + "/" + "362917458boom" + "@" + currentDatabase);
 			connection.setAutoCommit(false);
-			roles = executeQuery("SELECT GRANTED_ROLE FROM USER_ROLE_PRIVS", List.of("GRANTED_ROLE"));
+			roles = executeQuery("SELECT GRANTED_ROLE FROM USER_ROLE_PRIVS", List.of("GRANTED_ROLE"), result);
+			if(roles == null){
+				return false;
+			}
 			List<String> tmp = new ArrayList<String>();
 			for(String role : roles){
 				tmp.add(role.substring(0, role.length() - 1));
@@ -46,7 +52,7 @@ public class ConnecterDataBase{
 			return true;
 		}
 		catch(SQLException e){
-			result.append("Can't connect to database: \n" + e.getMessage());
+			result.append("Can't connect to database: " + getMessage(e));
 			return false;
 		}
 	}
@@ -72,10 +78,10 @@ public class ConnecterDataBase{
 					connection.rollback();
 				}
 				catch(SQLException ee){
-					return "FATAL ERROR. DATABASE IS IN UNDEPENDENT STATE:\n" + getMessageForError(ee.getErrorCode());
+					return "FATAL ERROR. DATABASE IS IN UNDEPENDENT STATE: " + getMessage(ee);
 				}
 				System.err.println("Query:\n" + query);
-				return "Can't execute command:\n" + getMessageForError(e.getErrorCode()) + "\n" + e.getMessage();
+				return "Can't execute command: " + getMessage(e);
 			}
 		}
 		try{
@@ -86,15 +92,15 @@ public class ConnecterDataBase{
 				connection.rollback();
 			}
 			catch(SQLException ee){
-				return "Can't commit changes and rollback them:\n" + getMessageForError(ee.getErrorCode());
+				return "Can't commit changes and rollback them: " + getMessage(ee);
 			}
-			return "Can't commit changes:\n" + getMessageForError(e.getErrorCode());
+			return "Can't commit changes: " + getMessage(e);
 		}
 		return "Successful operation";
 	}
 	
-	public List<String> executeQuery(String query, List<String> keys){
-		if(query == null || keys == null){
+	public List<String> executeQuery(String query, List<String> keys, StringBuilder result){
+		if(query == null || keys == null || result == null){
 			System.err.println("Null arguments for executeQuery");
 			return null;
 		}
@@ -122,8 +128,7 @@ public class ConnecterDataBase{
 			}
 		}
 		catch(SQLException e){
-			System.err.println("Can't execute command:\n" + getMessageForError(e.getErrorCode()));
-			System.err.println("Can't execute command:\n" + e.getMessage());
+			result.append("Can't execute command: " + getMessage(e));
 			System.err.println("Query:\n" + query);
 			return null;
 		}
@@ -146,8 +151,13 @@ public class ConnecterDataBase{
 		return roles.contains(role);
 	}
 	
-	private String getMessageForError(int error){
-		return properties.getProperty(String.valueOf(error), "Unknow error: " + error);
+	private String getMessage(SQLException e){
+		String message = properties.getProperty(String.valueOf(e.getErrorCode()));
+		if(message == null){
+			System.err.println(e.getErrorCode());
+			return e.getMessage();
+		}
+		return message;
 	}
 	
 	private String DEFAULT_DATABASE = "84.237.50.81:1521";

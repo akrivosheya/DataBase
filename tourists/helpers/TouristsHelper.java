@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class TouristsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags){
@@ -23,51 +25,67 @@ public class TouristsHelper implements QueryHelper{
 		if((fields != null && fields.size() > 0) || (flags != null && flags.size() > 0)){
 			query.append(" WHERE ");
 			if(fields != null){
-				fields.forEach((String attribute, String value)->{
-					if(!value.equals("")){
-						switch(attribute){
+				for(Map.Entry<String, String> entry : fields.entrySet()){
+					if(!entry.getValue().equals("")){
+						switch(entry.getKey()){
 							case "Section":
-								query.append("SECTIONS.NAME='" + value + "' AND\n");
+								query.append("SECTIONS.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Group":
-								query.append("SPORTSMEN.GROUP_ID=" + value + " AND\n");
+								query.append("SPORTSMEN.GROUP_ID=" + entry.getValue() + " AND\n");
 								break;
 							case "Sex":
-								if(!value.isBlank()){
-									query.append("TOURISTS.SEX='" + value + "' AND\n");
+								if(!entry.getValue().isBlank()){
+									query.append("TOURISTS.SEX='" + entry.getValue() + "' AND\n");
 								}
 								else{
 									query.append("(TOURISTS.SEX='M' OR TOURISTS.SEX='W') AND\n");
 								}
 								break;
 							case "Age":
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
 								int year = Calendar.getInstance().get(Calendar.YEAR);
-								query.append(year + "-EXTRACT(YEAR FROM TOURISTS.BIRTH)=" + value + " AND\n");
+								query.append(year + "-EXTRACT(YEAR FROM TOURISTS.BIRTH)=" + entry.getValue() + " AND\n");
 								break;
 							case "Birth":
-								query.append("TOURISTS.BIRTH='" + value + "' AND\n");
+								if(!StringMaster.isDate(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a date");
+									return null;
+								}
+								query.append("TOURISTS.BIRTH='" + entry.getValue().substring(0, DATE_LENGTH) + "' AND\n");
 								break;
 							case "Hike":
-								query.append("HIKE.NAME='" + value + "' AND\n");
+								query.append("HIKE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Hikes count":
-								query.append("TOURISTS_HIKES_COUNT.COUNT=" + value + " AND\n");
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
+								query.append("TOURISTS_HIKES_COUNT.COUNT=" + entry.getValue() + " AND\n");
 								break;
 							case "Route":
-								query.append("ROUTE.NAME='" + value + "' AND\n");
+								query.append("ROUTE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Point":
-								query.append("PLACE.NAME='" + value + "' AND\n");
+								query.append("PLACE.NAME='" + entry.getValue() + "' AND\n");
 								break;
 							case "Category":
-								query.append("TOURISTS.CATEGORY=" + value + " AND\n");
+								if(!StringMaster.isNumber(entry.getValue())){
+									System.err.println(entry.getValue() + " is not a number");
+									return null;
+								}
+								query.append("TOURISTS.CATEGORY=" + entry.getValue() + " AND\n");
 								break;
 							case "Can go to hike":
-								getConditionToHikeRequirement(query, value);
+								getConditionToHikeRequirement(query, entry.getValue());
 								break;
 						}
 					}
-				});
+				}
 			}
 			if(flags != null){
 				Iterator<String> iteratorFlag = flags.iterator();
@@ -105,21 +123,51 @@ public class TouristsHelper implements QueryHelper{
 		if(values.containsKey("NAME")){
 			query.append("'" + values.get("NAME") + "'");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("LAST_NAME")){
 			query.append("'" + values.get("LAST_NAME") + "'");
 		}
+		else{
+			query.append("NULL");
+		}
 		query.append(",");
 		if(values.containsKey("SEX")){
-			query.append("'" + values.get("SEX") + "'");
+			String sex = values.get("SEX");
+			if(!StringMaster.isSex(sex)){
+				System.err.println(sex + " is not a sex");
+				return null;
+			}
+			query.append("'" + sex + "'");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
 		if(values.containsKey("BIRTH")){
-			query.append("'" + values.get("BIRTH") + "'");
+			String birth = values.get("BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
+			}
+			query.append("'" + birth + "'");
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",");
 		if(values.containsKey("CATEGORY")){
-			query.append(values.get("CATEGORY"));
+			String category = values.get("CATEGORY");
+			if(!StringMaster.isNumber(category)){
+				System.err.println(category + " is not a number");
+				return null;
+			}
+			query.append(category);
+		}
+		else{
+			query.append("NULL");
 		}
 		query.append(",'AMATEUR')");
 		return query.toString();
@@ -131,20 +179,56 @@ public class TouristsHelper implements QueryHelper{
 			return null;
 		}
 		StringBuilder query = new StringBuilder("UPDATE TOURISTS SET ");
-		values.forEach((String attribute, String value)->{
-			switch(attribute){
-				case "NAME":
-				case "LAST_NAME":
-				case "SEX":
-				case "BIRTH":
-					query.append(attribute + "='" + value + "',");
-					break;
-				case "CATEGORY":
-					query.append(attribute + "=" + value + ",");
-					break;
+		query.append("NAME=");
+		if(values.containsKey("NAME")){
+			query.append("'" + values.get("NAME") + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("LAST_NAME=");
+		if(values.containsKey("LAST_NAME")){
+			query.append("'" + values.get("LAST_NAME") + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("SEX=");
+		if(values.containsKey("SEX")){
+			String sex = values.get("SEX");
+			if(!StringMaster.isSex(sex)){
+				System.err.println(sex + " is not a sex");
+				return null;
 			}
-		});
-		query.deleteCharAt(query.length() - 1);
+			query.append("'" + sex + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("BIRTH=");
+		if(values.containsKey("BIRTH")){
+			String birth = values.get("BIRTH");
+			if(!StringMaster.isDate(birth)){
+				System.err.println(birth + " is not a date");
+				return null;
+			}
+			query.append("'" + birth + "',");
+		}
+		else{
+			query.append("NULL,");
+		}
+		query.append("CATEGORY=");
+		if(values.containsKey("CATEGORY")){
+			String category = values.get("CATEGORY");
+			if(!StringMaster.isNumber(category)){
+				System.err.println(category + " is not a number");
+				return null;
+			}
+			query.append(category);
+		}
+		else{
+			query.append("NULL");
+		}
 		query.append("\nWHERE ");
 		fields.forEach((String attribute, String value)->{
 			switch(attribute){
@@ -226,5 +310,6 @@ public class TouristsHelper implements QueryHelper{
 		return query.toString();
 	}
 	
+	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_tourists.txt";
 }
