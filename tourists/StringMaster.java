@@ -116,6 +116,84 @@ public class StringMaster{
 		return true;
 	}
 	
+	public static boolean isHour(String string){
+		if(string == null){
+			return true;
+		}
+		if(string.length() < HOUR_LENGTH){
+			return false;
+		}
+		int i = 0;
+		if(!isNumber(string, i, HOUR_PART_LENGTH)){
+			return false;
+		}
+		i += HOUR_PART_LENGTH;
+		if(string.charAt(i) != ':'){
+			return false;
+		}
+		++i;
+		if(!isNumber(string, i, i + HOUR_PART_LENGTH)){
+			return false;
+		}
+		if(string.length() > HOUR_LENGTH && !string.substring(i, string.length()).isBlank()){
+			return false;
+		}
+		return true;
+	}
+	
+	public static boolean isWeekDay(String string){
+		if(string == null){
+			return true;
+		}
+		switch(string){
+			case "Sunday":
+			case "Monday":
+			case "Tuesday":
+			case "Wednesday":
+			case "Thursday":
+			case "Friday":
+			case "Seturday":
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	public static int getDayFromWeekDay(String string){
+		if(string == null){
+			return 0;
+		}
+		switch(string){
+			case "Sunday":
+				return 7;
+			case "Monday":
+				return 1;
+			case "Tuesday":
+				return 2;
+			case "Wednesday":
+				return 3;
+			case "Thursday":
+				return 4;
+			case "Friday":
+				return 5;
+			case "Seturday":
+				return 6;
+			default:
+				return 0;
+		}
+	}
+	
+	public static String getWeekDays(){
+		return "Sunday; Monday; Tuesday; Wednesday; Thursday, Friday; Seturday";
+	}
+	
+	public static int getHour(String string){
+		if(string == null){
+			throw new NullPointerException("Problem in StringMaster.getHour: string is null");
+		}
+		return Integer.decode(string.substring(0, HOUR_PART_LENGTH));
+	}
+	
 	public static boolean isFlag(String flag){
 		if(flag == null){
 			return true;
@@ -196,8 +274,10 @@ public class StringMaster{
 	}
 	
 	private static int DAY_LENGTH = 2;
+	private static int HOUR_PART_LENGTH = 2;
 	private static int MONTH_LENGTH = 2;
 	private static int YEAR_LENGTH = 4;
 	private static int DATE_LENGTH = 10;
+	private static int HOUR_LENGTH = 5;
 	private static int NULL_LENGTH = 4;
 }

@@ -265,10 +265,34 @@
 			<field>Group</field>
 			<field>Trains after hour</field>
 			<field>Trains before hour</field>
-			<field>Trains after day</field>
-			<field>Trains before day</field>
 		</fields>
 		<dropdowns>
+			<dropdown>
+				<mainText>Trains after day</mainText>
+				<texts>
+					<text>Sunday</text>
+					<text>Monday</text>
+					<text>Tuesday</text>
+					<text>Wednesday</text>
+					<text>Thursday</text>
+					<text>Friday</text>
+					<text>Seturday</text>
+					<text> </text>
+				</texts>
+			</dropdown>
+			<dropdown>
+				<mainText>Trains before day</mainText>
+				<texts>
+					<text>Sunday</text>
+					<text>Monday</text>
+					<text>Tuesday</text>
+					<text>Wednesday</text>
+					<text>Thursday</text>
+					<text>Friday</text>
+					<text>Seturday</text>
+					<text> </text>
+				</texts>
+			</dropdown>
 			<dropdown>
 				<mainText>Sex</mainText>
 				<texts>
@@ -328,9 +352,35 @@
 			<field>Training</field>
 			<field>Trains after hour</field>
 			<field>Trains before hour</field>
-			<field>Trains after day</field>
-			<field>Trains before day</field>
 		</fields>
+		<dropdowns>
+			<dropdown>
+				<mainText>Trains after day</mainText>
+				<texts>
+					<text>Sunday</text>
+					<text>Monday</text>
+					<text>Tuesday</text>
+					<text>Wednesday</text>
+					<text>Thursday</text>
+					<text>Friday</text>
+					<text>Seturday</text>
+					<text> </text>
+				</texts>
+			</dropdown>
+			<dropdown>
+				<mainText>Trains before day</mainText>
+				<texts>
+					<text>Sunday</text>
+					<text>Monday</text>
+					<text>Tuesday</text>
+					<text>Wednesday</text>
+					<text>Thursday</text>
+					<text>Friday</text>
+					<text>Seturday</text>
+					<text> </text>
+				</texts>
+			</dropdown>
+		</dropdowns>
 		<buttons>
 			<button>
 				<text>Find</text>

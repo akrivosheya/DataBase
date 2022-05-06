@@ -74,11 +74,47 @@ public class QueryMaster{
 		return query;
 	}
 	
-	public String getColumns(){
+	public String getSelectingColumns(){
 		if(helper == null){
 			return null;
 		}
-		return helper.getColumns();
+		return helper.getSelectingColumns();
+	}
+	
+	public String getUpdatingColumns(){
+		if(helper == null){
+			return null;
+		}
+		return helper.getUpdatingColumns();
+	}
+	
+	public String getTableColumns(){
+		if(helper == null){
+			return null;
+		}
+		return helper.getTableColumns();
+	}
+	
+	public boolean setSelectingToTable(List<String> selectingValues, List<String> tableValues){
+		if(selectingValues == null || tableValues == null){
+			return false;
+		}
+		return helper.setSelectingToTable(selectingValues, tableValues);
+	}
+	
+	public void setTableToSelecting(List<String> tableValues, List<String> selectingValues){
+		if(tableValues == null || selectingValues == null){
+			return;
+		}
+		helper.setTableToSelecting(tableValues, selectingValues);
+	}
+	
+	
+	public List<String> getUpdatingFromSelecting(List<String> selectingValues){
+		if(selectingValues == null){
+			throw new NullPointerException("Problem in QueryMaster.getUpdatingFromSelecting: null argument");
+		}
+		return helper.getUpdatingFromSelecting(selectingValues);
 	}
 	
 	public void setHelper(QueryHelper helper){

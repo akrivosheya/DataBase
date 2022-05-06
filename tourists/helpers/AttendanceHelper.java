@@ -259,8 +259,92 @@ public class AttendanceHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getColumns(){
+	public String getSelectingColumns(){
 		return "SPORTSMAN_NAME;SPORTSMAN_LAST_NAME;SPORTSMAN_BIRTH;TRAINING;SECTION;TIME;VISITED";
+	}
+	
+	@Override
+	public String getUpdatingColumns(){
+		return "SPORTSMAN_NAME;SPORTSMAN_LAST_NAME;SPORTSMAN_BIRTH;TRAINING;SECTION;TIME;VISITED";
+	}
+	
+	@Override
+	public String getTableColumns(){
+		return "SPORTSMAN;TRAINING;TIME;VISITED";
+	}
+	
+	public boolean setSelectingToTable(List<String> selectingValues, List<String> tableValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in AttendanceHelper.setSelectingToTable: null argument");
+		}
+		StringBuilder row = new StringBuilder("");
+		for(String value : selectingValues){
+			String[] fields = value.split(TABLE_DELIM);
+			if(fields.length < SELECTING_FIELDS){
+				throw new RuntimeException("Problem in AttendanceHelper.setSelectingToTable: not enough parametres in values");
+			}
+			int i = 0;
+			for(; i < SPORTSMAN_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(FIELD_DELIM);
+			}
+			row.delete(row.length() - FIELD_DELIM.length(), row.length());
+			row.append(TABLE_DELIM);
+			for(; i < SPORTSMAN_FIELDS + TRAINING_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(FIELD_DELIM);
+			}
+			row.delete(row.length() - FIELD_DELIM.length(), row.length());
+			row.append(TABLE_DELIM);
+			for(; i < SELECTING_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(TABLE_DELIM);
+			}
+			if(!tableValues.add(row.toString())){
+				return false;
+			}
+			row.delete(0, row.length());
+		}
+		return true;
+	}
+	
+	public void setTableToSelecting(List<String> tableValues, List<String> selectingValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in AttendanceHelper.setSelectingToTable: null argument");
+		}
+		selectingValues.clear();
+		String[] fields = new String[0];
+		fields = tableValues.toArray(fields);
+		if(fields.length < TABLE_FIELDS){
+			throw new RuntimeException("Problem in AttendanceHelper.setSelectingToTable: " + fields.length + " of value in tableValues less than " + TABLE_FIELDS);
+		}
+		String[] sportsman = fields[SPORTSMAN_INDEX].split(FIELD_DELIM);
+		if(sportsman.length < SPORTSMAN_FIELDS){
+			throw new RuntimeException("Problem in AttendanceHelper.setSelectingToTable: " + sportsman.length + " of value in tableValues less than " + SPORTSMAN_FIELDS);
+		}
+		for(String sportsmanField : sportsman){
+			selectingValues.add(sportsmanField);
+		}
+		String[] training = fields[TRAINING_INDEX].split(FIELD_DELIM);
+		if(training.length < TRAINING_FIELDS){
+			throw new RuntimeException("Problem in AttendanceHelper.setSelectingToTable: " + training.length + " of value in tableValues less than " + TRAINING_FIELDS);
+		}
+		for(String trainingField : training){
+			selectingValues.add(trainingField);
+		}
+		for(int i = TIME_INDEX; i < TABLE_FIELDS; ++i){
+			selectingValues.add(fields[i]);
+		}
+	}
+	
+	public List<String> getUpdatingFromSelecting(List<String> selectingValues){
+		if(selectingValues == null){
+			throw new NullPointerException("Problem in AttendanceHelper.getUpdatingFromSelecting: null argument");
+		}
+		if(selectingValues.size() < SELECTING_FIELDS){
+			throw new RuntimeException("Problem in AttendanceHelper.getUpdatingFromSelecting: length " + selectingValues.size() + " of argument less than " + SELECTING_FIELDS);
+		}
+		return selectingValues;
 	}
 	
 	private String scanFile(String fileName){
@@ -281,6 +365,17 @@ public class AttendanceHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int SPORTSMAN_INDEX = 0;
+	private int TRAINING_INDEX = 1;
+	private int TIME_INDEX = 2;
+	private int VISITED_INDEX = 3;
+	private int SELECTING_FIELDS = 7;
+	private int TABLE_FIELDS = 4;
+	private int SPORTSMAN_FIELDS = 3;
+	private int TRAINING_FIELDS = 2;
 	private int DATE_LENGTH = 10;
+	private String TABLE_DELIM = ";";
+	private String FIELD_DELIM = ", ";
+	private String FIELD_REPLACE = "_";
 	private String SELECT_FILE = "SQL_select_attendance.txt";
 }

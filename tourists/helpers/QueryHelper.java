@@ -11,5 +11,15 @@ public interface QueryHelper{
 	
 	public String getDeletingQuery(Map<String, String> params);
 	
-	public String getColumns();
+	public String getSelectingColumns();
+	
+	public String getUpdatingColumns();
+	
+	public String getTableColumns();
+	
+	public boolean setSelectingToTable(List<String> selectingValues, List<String> tableValues);
+	
+	public void setTableToSelecting(List<String> tableValues, List<String> selectingValues);
+	
+	public List<String> getUpdatingFromSelecting(List<String> selectingValues);
 }

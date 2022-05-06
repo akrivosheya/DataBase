@@ -105,27 +105,28 @@ public class ElementsConfigurator{
 		}
 	}
 	
-	public boolean configureTable(TableView<TableData> table, QueryMaster queryMaster, ConnecterDataBase connecter, StringBuilder result){
-		if(result == null){
-			throw new NullPointerException("Problem in ElementsConfigurator.configureTable: result is null");
+	public boolean configureTable(TableView<TableData> table, QueryMaster queryMaster, ConnecterDataBase connecter, StringBuilder message){
+		if(message == null){
+			throw new NullPointerException("Problem in ElementsConfigurator.configureTable: message is null");
 		}
-		String query = queryMaster.getSelectingQuery(null, null, result);
+		String query = queryMaster.getSelectingQuery(null, null, message);
 		if(query == null){
 			return false;
 		}
 		List<String> rows = new ArrayList<String>();
-		String columns = queryMaster.getColumns();
-		if(columns == null){
-			result.append("Can't get columns from queryMaster");
+		String selectingColumns = queryMaster.getSelectingColumns();
+		String tableColumns = queryMaster.getTableColumns();
+		if(selectingColumns == null || tableColumns == null){
+			message.append("Can't get columns from queryMaster");
 			return false;
 		}
-		if(!rows.add(columns)){
-			result.append("Can't get rows of select command");
+		if(!rows.add(tableColumns)){
+			message.append("Can't get rows of select command");
 			return false;
 		}
-		List<String> values = connecter.executeQuery(query, StringMaster.arrayStringsToList(columns.split(DELIM)), result);
-		if(values == null || (!rows.addAll(values) && values.size() != 0)){
-			result.append("Can't get rows of select command");
+		List<String> values = connecter.executeQuery(query, StringMaster.arrayStringsToList(selectingColumns.split(DELIM)), message);
+		if(values == null || (values.size() != 0 && !queryMaster.setSelectingToTable(values, rows))){
+			message.append("Can't get rows of select command");
 			return false;
 		}
 		configureTable(rows, table);

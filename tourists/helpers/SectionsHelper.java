@@ -137,8 +137,76 @@ public class SectionsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getColumns(){
+	public String getSelectingColumns(){
 		return "NAME;DIRECTOR_NAME;DIRECTOR_LAST_NAME;DIRECTOR_BIRTH";
+	}
+	
+	@Override
+	public String getUpdatingColumns(){
+		return "NAME;DIRECTOR_NAME;DIRECTOR_LAST_NAME;DIRECTOR_BIRTH";
+	}
+	
+	@Override
+	public String getTableColumns(){
+		return "NAME;DIRECTOR";
+	}
+	
+	public boolean setSelectingToTable(List<String> selectingValues, List<String> tableValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in SectionsHelper.setSelectingToTable: null argument");
+		}
+		StringBuilder row = new StringBuilder("");
+		for(String value : selectingValues){
+			String[] fields = value.split(TABLE_DELIM);
+			if(fields.length < SELECTING_FIELDS){
+				throw new RuntimeException("Problem in SectionsHelper.setSelectingToTable: not enough parametres in values");
+			}
+			int i = 0;
+			row.append(fields[i]);
+			row.append(TABLE_DELIM);
+			++i;
+			for(; i < SELECTING_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(FIELD_DELIM);
+			}
+			row.delete(row.length() - FIELD_DELIM.length(), row.length());
+			row.append(TABLE_DELIM);
+			if(!tableValues.add(row.toString())){
+				return false;
+			}
+			row.delete(0, row.length());
+		}
+		return true;
+	}
+	
+	public void setTableToSelecting(List<String> tableValues, List<String> selectingValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in SectionsHelper.setSelectingToTable: null argument");
+		}
+		selectingValues.clear();
+		String[] fields = new String[0];
+		fields = tableValues.toArray(fields);
+		if(fields.length < TABLE_FIELDS){
+			throw new RuntimeException("Problem in SectionsHelper.setSelectingToTable: " + fields.length + " of value in tableValues less than " + TABLE_FIELDS);
+		}
+		selectingValues.add(fields[SECTION_INDEX]);
+		String[] director = fields[DIRECTOR_INDEX].split(FIELD_DELIM);
+		if(director.length < DIRECTOR_FIELDS){
+			throw new RuntimeException("Problem in SectionsHelper.setSelectingToTable: " + director.length + " of value in tableValues less than " + DIRECTOR_FIELDS);
+		}
+		for(String directorField : director){
+			selectingValues.add(directorField);
+		}
+	}
+	
+	public List<String> getUpdatingFromSelecting(List<String> selectingValues){
+		if(selectingValues == null){
+			throw new NullPointerException("Problem in SectionsHelper.getUpdatingFromSelecting: null argument");
+		}
+		if(selectingValues.size() < SELECTING_FIELDS){
+			throw new RuntimeException("Problem in SectionsHelper.getUpdatingFromSelecting: length " + selectingValues.size() + " of argument less than " + SELECTING_FIELDS);
+		}
+		return selectingValues;
 	}
 	
 	private String scanFile(String fileName){
@@ -159,6 +227,14 @@ public class SectionsHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int SELECTING_FIELDS = 4;
+	private int TABLE_FIELDS = 2;
+	private int DIRECTOR_FIELDS = 3;
+	private int SECTION_INDEX = 0;
+	private int DIRECTOR_INDEX = 1;
+	private String TABLE_DELIM = ";";
+	private String FIELD_DELIM = ", ";
+	private String FIELD_REPLACE = "_";
 	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_sections.txt";
 }

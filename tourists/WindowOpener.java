@@ -81,22 +81,23 @@ public class WindowOpener{
 		showWindow(window, root, DEFAULT_WIDTH, DEFAULT_HEIGHT, "Creating");
 	}
 	
-	public void openUpdatingWindow(List<String> columns, List<String> values, TableView<TableData> table, 
+	public void openUpdatingWindow(List<String> updatingColumns, List<String> selectingColumns, List<String> selectingValues, TableView<TableData> table, 
 	QueryMaster queryMaster, ConnecterDataBase connecter){
-		if(columns == null || values == null){
+		if(selectingColumns == null || selectingValues == null){
 			throw new NullPointerException("Null arguments for sendSelectingResult");
 		}
 		Group root = new Group();
 		List<Text> texts = new ArrayList<Text>();
 		List<TextField> fields = new ArrayList<TextField>();
-		configurator.createTextsWithFields(columns, texts, fields);
-		configurator.setTextToFields(values, fields);
+		configurator.createTextsWithFields(updatingColumns, texts, fields);
+		List<String> updatingValues = queryMaster.getUpdatingFromSelecting(selectingValues);
+		configurator.setTextToFields(updatingValues, fields);
 		Button button = new Button("OK");
 		Stage window = new Stage();
 		button.setOnAction(e->{
 			StringBuilder message = new StringBuilder("");
 			String query = queryMaster.getUpdatingQuery(StringMaster.getMapFromTextsAndFields(texts, fields, false), 
-			StringMaster.getMapFromStrings(columns, values, true), message);
+			StringMaster.getMapFromStrings(selectingColumns, selectingValues, true), message);
 			if(query == null){
 				sendInformation(message.toString());
 				return;

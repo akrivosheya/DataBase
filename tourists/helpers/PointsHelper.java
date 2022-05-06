@@ -83,8 +83,47 @@ public class PointsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getColumns(){
+	public String getSelectingColumns(){
 		return "NAME";
+	}
+	
+	@Override
+	public String getUpdatingColumns(){
+		return "NAME";
+	}
+	
+	@Override
+	public String getTableColumns(){
+		return "NAME";
+	}
+	
+	public boolean setSelectingToTable(List<String> selectingValues, List<String> tableValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in PointsHelper.setSelectingToTable: null argument");
+		}
+		StringBuilder row = new StringBuilder("");
+		if(!tableValues.addAll(selectingValues)){
+			return false;
+		}
+		return true;
+	}
+	
+	public void setTableToSelecting(List<String> tableValues, List<String> selectingValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in sPointsHelper.setSelectingToTable: null argument");
+		}
+		selectingValues.clear();
+		selectingValues.addAll(tableValues);
+	}
+	
+	public List<String> getUpdatingFromSelecting(List<String> selectingValues){
+		if(selectingValues == null){
+			throw new NullPointerException("Problem in PointsHelper.getUpdatingFromSelecting: null argument");
+		}
+		if(selectingValues.size() < SELECTING_FIELDS){
+			throw new RuntimeException("Problem in PointsHelper.getUpdatingFromSelecting: length " + selectingValues.size() + " of argument less than " + SELECTING_FIELDS);
+		}
+		return selectingValues;
 	}
 	
 	private String scanFile(String fileName){
@@ -105,5 +144,6 @@ public class PointsHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int SELECTING_FIELDS = 1;
 	private String SELECT_FILE = "SQL_select_points.txt";
 }

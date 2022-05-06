@@ -187,8 +187,80 @@ public class ConductedHikesHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getColumns(){
+	public String getSelectingColumns(){
 		return "HIKE;INSTRUCTOR_NAME;INSTRUCTOR_LAST_NAME;INSTRUCTOR_BIRTH;TIME";
+	}
+	
+	@Override
+	public String getUpdatingColumns(){
+		return "HIKE;INSTRUCTOR_NAME;INSTRUCTOR_LAST_NAME;INSTRUCTOR_BIRTH;TIME";
+	}
+	
+	@Override
+	public String getTableColumns(){
+		return "HIKE;INSTRUCTOR;TIME";
+	}
+	
+	public boolean setSelectingToTable(List<String> selectingValues, List<String> tableValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in ConductedHikesHelper.setSelectingToTable: null argument");
+		}
+		StringBuilder row = new StringBuilder("");
+		for(String value : selectingValues){
+			String[] fields = value.split(TABLE_DELIM);
+			if(fields.length < SELECTING_FIELDS){
+				throw new RuntimeException("Problem in ConductedHikesHelper.setSelectingToTable: not enough parametres in values");
+			}
+			int i = 0;
+			row.append(fields[i++]);
+			row.append(TABLE_DELIM);
+			for(; i < INSTRUCTOR_FIELDS + 1; ++i){
+				row.append(fields[i]);
+				row.append(FIELD_DELIM);
+			}
+			row.delete(row.length() - FIELD_DELIM.length(), row.length());
+			row.append(TABLE_DELIM);
+			for(; i < SELECTING_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(TABLE_DELIM);
+			}
+			if(!tableValues.add(row.toString())){
+				return false;
+			}
+			row.delete(0, row.length());
+		}
+		return true;
+	}
+	
+	public void setTableToSelecting(List<String> tableValues, List<String> selectingValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in ConductedHikesHelper.setSelectingToTable: null argument");
+		}
+		selectingValues.clear();
+		String[] fields = new String[0];
+		fields = tableValues.toArray(fields);
+		if(fields.length < TABLE_FIELDS){
+			throw new RuntimeException("Problem in ConductedHikesHelper.setSelectingToTable: " + fields.length + " of value in tableValues less than " + TABLE_FIELDS);
+		}
+		selectingValues.add(fields[0]);
+		String[] instructor = fields[INSTRUCTOR_INDEX].split(FIELD_DELIM);
+		if(instructor.length < INSTRUCTOR_FIELDS){
+			throw new RuntimeException("Problem in ConductedHikesHelper.setSelectingToTable: " + instructor.length + " of value in tableValues less than " + INSTRUCTOR_FIELDS);
+		}
+		for(String instructorField : instructor){
+			selectingValues.add(instructorField);
+		}
+		selectingValues.add(fields[TIME_INDEX]);
+	}
+	
+	public List<String> getUpdatingFromSelecting(List<String> selectingValues){
+		if(selectingValues == null){
+			throw new NullPointerException("Problem in ConductedHikesHelper.getUpdatingFromSelecting: null argument");
+		}
+		if(selectingValues.size() < SELECTING_FIELDS){
+			throw new RuntimeException("Problem in ConductedHikesHelper.getUpdatingFromSelecting: length " + selectingValues.size() + " of argument less than " + SELECTING_FIELDS);
+		}
+		return selectingValues;
 	}
 	
 	private String scanFile(String fileName){
@@ -209,6 +281,14 @@ public class ConductedHikesHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int SELECTING_FIELDS = 5;
+	private int TABLE_FIELDS = 3;
+	private int INSTRUCTOR_FIELDS = 3;
+	private int INSTRUCTOR_INDEX = 1;
+	private int TIME_INDEX = 2;
+	private String TABLE_DELIM = ";";
+	private String FIELD_DELIM = ", ";
+	private String FIELD_REPLACE = "_";
 	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_conducted_hikes.txt";
 }

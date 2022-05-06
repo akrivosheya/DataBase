@@ -22,12 +22,14 @@ public class ButtonToCreating implements ButtonHelper{
 			throw new NullPointerException("Problem in ButtonToCreating.doOnAction: connecter is null");
 		}
 		List<TableData> list = table.getSelectionModel().getSelectedItems();
-		List<String> values = null;
+		List<String> tableValues = null;
 		if(list.size() == 1){
-			values = list.get(0).getListStrings();
+			tableValues = list.get(0).getListStrings();
 		}
-		List<String> columns = StringMaster.arrayStringsToList(queryMaster.getColumns().split(DELIM));
-		windowOpener.openCreatingWindow(columns, values, table, queryMaster, connecter);
+		List<String> selectingColumns = StringMaster.arrayStringsToList(queryMaster.getSelectingColumns().split(DELIM));
+		List<String> selectingValues = new ArrayList<String>();
+		queryMaster.setTableToSelecting(tableValues, selectingValues);
+		windowOpener.openCreatingWindow(selectingColumns, selectingValues, table, queryMaster, connecter);
 	}
 	
 	private String DELIM = ";";

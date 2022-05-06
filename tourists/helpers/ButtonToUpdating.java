@@ -22,16 +22,19 @@ public class ButtonToUpdating implements ButtonHelper{
 			throw new NullPointerException("Problem in ButtonToUpdating.doOnAction: connecter is null");
 		}
 		List<TableData> list = table.getSelectionModel().getSelectedItems();
-		List<String> values = null;
+		List<String> tableValues = null;
 		if(list.size() == 1){
-			values = list.get(0).getListStrings();
+			tableValues = list.get(0).getListStrings();
 		}
 		else{
 			windowOpener.sendInformation("Please choose row that you want to update");
 			return;
 		}
-		List<String> columns = StringMaster.arrayStringsToList(queryMaster.getColumns().split(DELIM));
-		windowOpener.openUpdatingWindow(columns, values, table, queryMaster, connecter);
+		List<String> selectingColumns = StringMaster.arrayStringsToList(queryMaster.getSelectingColumns().split(DELIM));
+		List<String> updatingColumns = StringMaster.arrayStringsToList(queryMaster.getUpdatingColumns().split(DELIM));
+		List<String> selectingValues = new ArrayList<String>();
+		queryMaster.setTableToSelecting(tableValues, selectingValues);
+		windowOpener.openUpdatingWindow(updatingColumns, selectingColumns, selectingValues, table, queryMaster, connecter);
 	}
 	
 	private String DELIM = ";";
