@@ -183,6 +183,30 @@ public class StringMaster{
 		}
 	}
 	
+	public static String getWeekDayFromDay(String string){
+		if(string == null){
+			return "NULL";
+		}
+		switch(string){
+			case "7":
+				return "Sunday";
+			case "1":
+				return "Monday";
+			case "2":
+				return "Tuesday";
+			case "3":
+				return "Wednesday";
+			case "4":
+				return "Thursday";
+			case "5":
+				return "Friday";
+			case "6":
+				return "Seturday";
+			default:
+				return "Unknown";
+		}
+	}
+	
 	public static String getWeekDays(){
 		return "Sunday; Monday; Tuesday; Wednesday; Thursday, Friday; Seturday";
 	}
@@ -192,6 +216,16 @@ public class StringMaster{
 			throw new NullPointerException("Problem in StringMaster.getHour: string is null");
 		}
 		return Integer.decode(string.substring(0, HOUR_PART_LENGTH));
+	}
+	
+	public static String getHourString(String string){
+		if(string == null){
+			throw new NullPointerException("Problem in StringMaster.getHour: string is null");
+		}
+		if(string.length() < 2){
+			return "0" + string + ":00";
+		}
+		return string + ":00";
 	}
 	
 	public static boolean isFlag(String flag){

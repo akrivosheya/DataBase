@@ -220,8 +220,88 @@ public class TrainsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getColumns(){
+	public String getSelectingColumns(){
 		return "COACH_NAME;COACH_LAST_NAME;COACH_BIRTH;GROUP_NAME;TRAINING;SECTION";
+	}
+	
+	@Override
+	public String getUpdatingColumns(){
+		return "COACH_NAME;COACH_LAST_NAME;COACH_BIRTH;GROUP_NAME;TRAINING;SECTION";
+	}
+	
+	@Override
+	public String getTableColumns(){
+		return "COACH;GROUP_NAME;TRAINING";
+	}
+	
+	public boolean setSelectingToTable(List<String> selectingValues, List<String> tableValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in TrainsHelper.setSelectingToTable: null argument");
+		}
+		StringBuilder row = new StringBuilder("");
+		for(String value : selectingValues){
+			String[] fields = value.split(TABLE_DELIM);
+			if(fields.length < SELECTING_FIELDS){
+				throw new RuntimeException("Problem in TrainsHelper.setSelectingToTable: not enough parametres in values");
+			}
+			int i = 0;
+			for(; i < COACH_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(FIELD_DELIM);
+			}
+			row.delete(row.length() - FIELD_DELIM.length(), row.length());
+			row.append(TABLE_DELIM);
+				row.append(fields[i++]);
+				row.append(TABLE_DELIM);
+			for(; i < SELECTING_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(FIELD_DELIM);
+			}
+			row.delete(row.length() - FIELD_DELIM.length(), row.length());
+			row.append(TABLE_DELIM);
+			if(!tableValues.add(row.toString())){
+				return false;
+			}
+			row.delete(0, row.length());
+		}
+		return true;
+	}
+	
+	public void setTableToSelecting(List<String> tableValues, List<String> selectingValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in TrainsHelper.setSelectingToTable: null argument");
+		}
+		selectingValues.clear();
+		String[] fields = new String[0];
+		fields = tableValues.toArray(fields);
+		if(fields.length < TABLE_FIELDS){
+			throw new RuntimeException("Problem in TrainsHelper.setSelectingToTable: " + fields.length + " of value in tableValues less than " + TABLE_FIELDS);
+		}
+		String[] coach = fields[COACH_INDEX].split(FIELD_DELIM);
+		if(coach.length < COACH_FIELDS){
+			throw new RuntimeException("Problem in TrainsHelper.setSelectingToTable: " + coach.length + " of value in tableValues less than " + COACH_FIELDS);
+		}
+		for(String coachField : coach){
+			selectingValues.add(coachField);
+		}
+		selectingValues.add(fields[GROUP_INDEX]);
+		String[] training = fields[TRAINING_INDEX].split(FIELD_DELIM);
+		if(training.length < TRAINING_FIELDS){
+			throw new RuntimeException("Problem in TrainsHelper.setSelectingToTable: " + training.length + " of value in tableValues less than " + TRAINING_FIELDS);
+		}
+		for(String trainingField : training){
+			selectingValues.add(trainingField);
+		}
+	}
+	
+	public List<String> getUpdatingFromSelecting(List<String> selectingValues){
+		if(selectingValues == null){
+			throw new NullPointerException("Problem in TrainsHelper.getUpdatingFromSelecting: null argument");
+		}
+		if(selectingValues.size() < SELECTING_FIELDS){
+			throw new RuntimeException("Problem in TrainsHelper.getUpdatingFromSelecting: length " + selectingValues.size() + " of argument less than " + SELECTING_FIELDS);
+		}
+		return selectingValues;
 	}
 	
 	private String scanFile(String fileName){
@@ -242,6 +322,16 @@ public class TrainsHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int SELECTING_FIELDS = 6;
+	private int TABLE_FIELDS = 3;
+	private int COACH_FIELDS = 3;
+	private int TRAINING_FIELDS = 2;
+	private int COACH_INDEX = 0;
+	private int GROUP_INDEX = 1;
+	private int TRAINING_INDEX = 2;
+	private String TABLE_DELIM = ";";
+	private String FIELD_DELIM = ", ";
+	private String FIELD_REPLACE = "_";
 	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_trains.txt";
 }

@@ -40,7 +40,7 @@ public class TouristsHelper implements QueryHelper{
 									query.append("GROUPS.ID IS NULL AND\n");
 									break;
 								}
-								query.append("SPORTSMEN.GROUP_ID=" + entry.getValue() + " AND\n");
+								query.append("GROUPS.NAME=" + entry.getValue() + " AND\n");
 								break;
 							case "Sex":
 								if(!entry.getValue().isBlank()){
@@ -125,8 +125,8 @@ public class TouristsHelper implements QueryHelper{
 						case "Is sportsman":
 							query.append("TOURISTS.TYPE='SPORTSMAN'");
 							break;
-						case "Instructor is coach":
-							query.append("TRAINS.COACH = CONDUCTED_HIKE.INSTRUCTOR");
+						case "Instructor is tourist":
+							query.append("TRAINS.tourist = CONDUCTED_HIKE.INSTRUCTOR");
 							break;
 					}
 					query.append(" AND\n");
@@ -301,8 +301,79 @@ public class TouristsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getColumns(){
+	public String getSelectingColumns(){
 		return "NAME;LAST_NAME;SEX;BIRTH;CATEGORY";
+	}
+	
+	@Override
+	public String getUpdatingColumns(){
+		return "NAME;LAST_NAME;SEX;BIRTH;CATEGORY";
+	}
+	
+	@Override
+	public String getTableColumns(){
+		return "TOURIST;SEX;BIRTH;CATEGORY";
+	}
+	
+	public boolean setSelectingToTable(List<String> selectingValues, List<String> tableValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in TouristsHelper.setSelectingToTable: null argument");
+		}
+		StringBuilder row = new StringBuilder("");
+		for(String value : selectingValues){
+			String[] fields = value.split(TABLE_DELIM);
+			if(fields.length < SELECTING_FIELDS){
+				throw new RuntimeException("Problem in TouristsHelper.setSelectingToTable: not enough parametres in values");
+			}
+			int i = 0;
+			for(; i < TOURIST_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(FIELD_DELIM);
+			}
+			row.delete(row.length() - FIELD_DELIM.length(), row.length());
+			row.append(TABLE_DELIM);
+			for(; i < SELECTING_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(TABLE_DELIM);
+			}
+			if(!tableValues.add(row.toString())){
+				return false;
+			}
+			row.delete(0, row.length());
+		}
+		return true;
+	}
+	
+	public void setTableToSelecting(List<String> tableValues, List<String> selectingValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in TouristsHelper.setSelectingToTable: null argument");
+		}
+		selectingValues.clear();
+		String[] fields = new String[0];
+		fields = tableValues.toArray(fields);
+		if(fields.length < TABLE_FIELDS){
+			throw new RuntimeException("Problem in TouristsHelper.setSelectingToTable: " + fields.length + " of value in tableValues less than " + TABLE_FIELDS);
+		}
+		String[] tourist = fields[TOURIST_INDEX].split(FIELD_DELIM);
+		if(tourist.length < TOURIST_FIELDS){
+			throw new RuntimeException("Problem in TouristsHelper.setSelectingToTable: " + tourist.length + " of value in tableValues less than " + TOURIST_FIELDS);
+		}
+		for(String touristField : tourist){
+			selectingValues.add(touristField);
+		}
+		for(int i = OTHER_INDEX; i < TABLE_FIELDS; ++i){
+			selectingValues.add(fields[i]);
+		}
+	}
+	
+	public List<String> getUpdatingFromSelecting(List<String> selectingValues){
+		if(selectingValues == null){
+			throw new NullPointerException("Problem in TouristsHelper.getUpdatingFromSelecting: null argument");
+		}
+		if(selectingValues.size() < SELECTING_FIELDS){
+			throw new RuntimeException("Problem in TouristsHelper.getUpdatingFromSelecting: length " + selectingValues.size() + " of argument less than " + SELECTING_FIELDS);
+		}
+		return selectingValues;
 	}
 	
 	private String scanFile(String fileName){
@@ -342,6 +413,14 @@ public class TouristsHelper implements QueryHelper{
 		return query.toString();
 	}
 	
+	private int SELECTING_FIELDS = 5;
+	private int TABLE_FIELDS = 4;
+	private int TOURIST_FIELDS = 2;
+	private int TOURIST_INDEX = 0;
+	private int OTHER_INDEX = 1;
+	private String TABLE_DELIM = ";";
+	private String FIELD_DELIM = ", ";
+	private String FIELD_REPLACE = "_";
 	private int DATE_LENGTH = 10;
 	private String SELECT_FILE = "SQL_select_tourists.txt";
 }

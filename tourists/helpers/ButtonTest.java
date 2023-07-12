@@ -10,10 +10,17 @@ import tourists.*;
 
 public class ButtonTest implements ButtonHelper{
 	@Override
-	public void doOnAction(String menu, String nextMenu, Map<String, Group> groups, 
+	public void doOnAction(String menu, String privileges, Map<String, Group> groups, 
 	MenuElements elements, TableView<TableData> table, ConnecterDataBase connecter, QueryMaster queryMaster){
 		if(queryMaster == null){
 			throw new NullPointerException("Problem in ButtonTest.doOnAction: queryMaster is null");
+		}
+		if(privileges == null){
+			throw new NullPointerException("Problem in ButtonResetter.doOnAction: privileges is null");
+		}
+		if(!connecter.hasRole(privileges)){
+			windowOpener.sendInformation("Need " + privileges + " privileges");
+			return;
 		}
 		List<String> queries = queryMaster.getQueries(RESET_FILE);
 		if(queries == null){

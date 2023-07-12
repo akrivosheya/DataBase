@@ -3,6 +3,8 @@ package tourists.helpers;
 import java.util.*;
 import java.io.*;
 
+import tourists.StringMaster;
+
 public class TrainingsHelper implements QueryHelper{
 	@Override
 	public String getSelectingQuery(Map<String, String> fields, List<String> flags, StringBuilder message){
@@ -47,7 +49,12 @@ public class TrainingsHelper implements QueryHelper{
 		}
 		query.append(",");
 		if(values.containsKey("DAY")){
-			query.append(values.get("DAY"));
+			String day = values.get("DAY");
+			if(!StringMaster.isWeekDay(day)){
+				message.append(day + " is not a week day. Week days: " + StringMaster.getWeekDays());
+				return null;
+			}
+			query.append(StringMaster.getDayFromWeekDay(day));
 		}
 		else{
 			message.append("You have to enter day");
@@ -55,7 +62,12 @@ public class TrainingsHelper implements QueryHelper{
 		}
 		query.append(",");
 		if(values.containsKey("BEGINNING_HOUR")){
-			query.append(values.get("BEGINNING_HOUR"));
+			String hour = values.get("BEGINNING_HOUR");
+			if(!StringMaster.isHour(hour)){
+				message.append(hour + " is not a hour. Hour format: hh:mm");
+				return null;
+			}
+			query.append(StringMaster.getHour(hour));
 		}
 		else{
 			message.append("You have to enter beginning hour");
@@ -63,7 +75,12 @@ public class TrainingsHelper implements QueryHelper{
 		}
 		query.append(",");
 		if(values.containsKey("ENDING_HOUR")){
-			query.append(values.get("ENDING_HOUR"));
+			String hour = values.get("ENDING_HOUR");
+			if(!StringMaster.isHour(hour)){
+				message.append(hour + " is not a hour. Hour format: hh:mm");
+				return null;
+			}
+			query.append(StringMaster.getHour(hour));
 		}
 		else{
 			message.append("You have to enter ending hour");
@@ -111,7 +128,12 @@ public class TrainingsHelper implements QueryHelper{
 		}
 		query.append("DAY=");
 		if(values.containsKey("DAY")){
-			query.append(values.get("DAY") + ",");
+			String day = values.get("DAY");
+			if(!StringMaster.isWeekDay(day)){
+				message.append(day + " is not a week day. Week days: " + StringMaster.getWeekDays());
+				return null;
+			}
+			query.append(StringMaster.getDayFromWeekDay(day) + ",");
 		}
 		else{
 			message.append("You have to enter day");
@@ -119,7 +141,12 @@ public class TrainingsHelper implements QueryHelper{
 		}
 		query.append("BEGINNING_HOUR=");
 		if(values.containsKey("BEGINNING_HOUR")){
-			query.append(values.get("BEGINNING_HOUR") + ",");
+			String hour = values.get("BEGINNING_HOUR");
+			if(!StringMaster.isHour(hour)){
+				message.append(hour + " is not a hour. Hour format: hh:mm");
+				return null;
+			}
+			query.append(StringMaster.getHour(hour) + ",");
 		}
 		else{
 			message.append("You have to enter beginning hour");
@@ -127,7 +154,12 @@ public class TrainingsHelper implements QueryHelper{
 		}
 		query.append("ENDING_HOUR=");
 		if(values.containsKey("ENDING_HOUR")){
-			query.append(values.get("ENDING_HOUR"));
+			String hour = values.get("ENDING_HOUR");
+			if(!StringMaster.isHour(hour)){
+				message.append(hour + " is not a hour. Hour format: hh:mm");
+				return null;
+			}
+			query.append(StringMaster.getHour(hour));
 		}
 		else{
 			message.append("You have to enter ending hour");
@@ -144,9 +176,11 @@ public class TrainingsHelper implements QueryHelper{
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "DAY":
+					query.append(attribute + "=" + StringMaster.getDayFromWeekDay(value) + " AND ");
+					break;
 				case "BEGINNING_HOUR":
 				case "ENDING_HOUR":
-					query.append(attribute + "=" + value + " AND ");
+					query.append(attribute + "=" + StringMaster.getHour(value) + " AND ");
 					break;
 			}
 		});
@@ -169,9 +203,11 @@ public class TrainingsHelper implements QueryHelper{
 					query.append(attribute + "='" + value + "' AND ");
 					break;
 				case "DAY":
+					query.append(attribute + "=" + StringMaster.getDayFromWeekDay(value) + " AND ");
+					break;
 				case "BEGINNING_HOUR":
 				case "ENDING_HOUR":
-					query.append(attribute + "=" + value + " AND ");
+					query.append(attribute + "=" + StringMaster.getHour(value) + " AND ");
 					break;
 			}
 		});
@@ -179,8 +215,86 @@ public class TrainingsHelper implements QueryHelper{
 	}
 	
 	@Override
-	public String getColumns(){
+	public String getSelectingColumns(){
 		return "SECTION;NAME;DAY;BEGINNING_HOUR;ENDING_HOUR;PLACE";
+	}
+	
+	@Override
+	public String getUpdatingColumns(){
+		return "SECTION;NAME;DAY;BEGINNING_HOUR;ENDING_HOUR;PLACE";
+	}
+	
+	@Override
+	public String getTableColumns(){
+		return "SECTION;NAME;DAY;HOURS;PLACE";
+	}
+	
+	public boolean setSelectingToTable(List<String> selectingValues, List<String> tableValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in TrainingsHelper.setSelectingToTable: null argument");
+		}
+		StringBuilder row = new StringBuilder("");
+		for(String value : selectingValues){
+			String[] fields = value.split(TABLE_DELIM);
+			if(fields.length < SELECTING_FIELDS){
+				throw new RuntimeException("Problem in TrainingsHelper.setSelectingToTable: not enough parametres in values");
+			}
+			int i = 0;
+			for(; i < DAY_INDEX; ++i){
+				row.append(fields[i]);
+				row.append(TABLE_DELIM);
+			}
+			row.append(StringMaster.getWeekDayFromDay(fields[i++]));
+			row.append(TABLE_DELIM);
+			row.append(StringMaster.getHourString(fields[i++]));
+			row.append(HOURS_DELIM);
+			row.append(StringMaster.getHourString(fields[i++]));
+			row.append(TABLE_DELIM);
+			for(; i < SELECTING_FIELDS; ++i){
+				row.append(fields[i]);
+				row.append(TABLE_DELIM);
+			}
+			if(!tableValues.add(row.toString())){
+				return false;
+			}
+			row.delete(0, row.length());
+		}
+		return true;
+	}
+	
+	public void setTableToSelecting(List<String> tableValues, List<String> selectingValues){
+		if(selectingValues == null || tableValues == null){
+			throw new NullPointerException("Problem in TrainingsHelper.setSelectingToTable: null argument");
+		}
+		selectingValues.clear();
+		String[] fields = new String[0];
+		fields = tableValues.toArray(fields);
+		if(fields.length < TABLE_FIELDS){
+			throw new RuntimeException("Problem in TrainingsHelper.setSelectingToTable: " + fields.length + " of value in tableValues less than " + TABLE_FIELDS);
+		}
+		int i = 0;
+		for(; i < DAY_INDEX; ++i){
+			selectingValues.add(fields[i]);
+		}
+		selectingValues.add(fields[i++]);
+		String[] hours = fields[i++].split(HOURS_DELIM);
+		if(hours.length < HOURS_FIELDS){
+			throw new RuntimeException("Problem in TrainingsHelper.setSelectingToTable: " + hours.length + " of value in tableValues less than " + HOURS_FIELDS);
+		}
+		for(String hoursField : hours){
+			selectingValues.add(hoursField);
+		}
+		selectingValues.add(fields[i++]);
+	}
+	
+	public List<String> getUpdatingFromSelecting(List<String> selectingValues){
+		if(selectingValues == null){
+			throw new NullPointerException("Problem in TrainingsHelper.getUpdatingFromSelecting: null argument");
+		}
+		if(selectingValues.size() < SELECTING_FIELDS){
+			throw new RuntimeException("Problem in TrainingsHelper.getUpdatingFromSelecting: length " + selectingValues.size() + " of argument less than " + SELECTING_FIELDS);
+		}
+		return selectingValues;
 	}
 	
 	private String scanFile(String fileName){
@@ -201,5 +315,12 @@ public class TrainingsHelper implements QueryHelper{
 		return text.toString();
 	}
 	
+	private int SELECTING_FIELDS = 6;
+	private int TABLE_FIELDS = 5;
+	private int HOURS_FIELDS = 2;
+	private int DAY_INDEX = 2;
+	private String TABLE_DELIM = ";";
+	private String HOURS_DELIM = "-";
+	private String FIELD_REPLACE = "_";
 	private String SELECT_FILE = "SQL_select_trainings.txt";
 }
